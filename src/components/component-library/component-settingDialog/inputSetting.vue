@@ -39,12 +39,11 @@ export default {
     },
     computed: {
         ...mapState({
-            formDatas : state => state.INPUT.formDatas,				
+            formDatas : state => state.formDatas,				
         }),
         getData(){
             let that = this;
             // that.formDatas = this.showData
-            console.log(that.showData)
             that.updateData({formDatas: that.showData})
             return that.formDatas;
         }

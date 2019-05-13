@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 Vue.directive('dragMove', {
-    inserted: function (el, bindings, vnode) {
+    update: function (el, bindings, vnode) {
         el.onmousedown = function (e) {
             e.stopPropagation()
             let boxWidth  = el.offsetWidth;
@@ -20,9 +20,10 @@ Vue.directive('dragMove', {
                 bindings.value.setPosition({
                     left  : parseFloat(el.style.left), 
                     top   : parseFloat(el.style.top),
-                    index : bindings.value.outBoxSize.index
+                    index : bindings.value.outBoxSize.index,
+                    cIndex: bindings.value.outBoxSize.cIndex,
                 })
-
+                console.log(bindings.value.outBoxSize.cIndex, "ccindex")
                 // el.style.top  = e.pageY - disY + 'px';
                 // el.style.left = e.pageX - disX + 'px';
                 // 通过传参的形式，将methods中的函数传进来，以此来改变data中的值
@@ -35,7 +36,7 @@ Vue.directive('dragMove', {
     }
 })
 Vue.directive('dragEagle', {
-    inserted: function (el, bindings, vnode) {
+    update: function (el, bindings, vnode) {
         el.onmousedown = function (e) {
             e.stopPropagation()
             let PNode = el.parentNode;
@@ -83,8 +84,10 @@ Vue.directive('dragEagle', {
                 bindings.value.setPosition({
                     left  : parseFloat(PNode.style.left), 
                     top   : parseFloat(PNode.style.top),
-                    index : bindings.value.outBoxSize.index
+                    index : bindings.value.outBoxSize.index,
+                    cIndex: bindings.value.outBoxSize.cIndex,
                 })
+                console.log(bindings.value.outBoxSize.cIndex, "ccindex")
             };
         
             document.onmouseup = function() {

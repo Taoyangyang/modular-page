@@ -9,11 +9,11 @@
             </el-image>
         </div>
         <!-- 热区 -->
-        <div class="eagleMapContainer" v-for="(item,index) in boxInfoOutput" :key="index" 
-            v-dragMove="{setPosition: setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index}}" ref="dragBox" 
+        <div class="eagleMapContainer" v-for="(item,index) in setData.hotSpotsPosition" :key="index" 
+            v-dragMove="{setPosition: setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cIndex: cIndex}}" ref="dragBox" 
             :style="{left: item.boxTLPoint.x+'px', top: item.boxTLPoint.y+'px', height: item.boxHeight+'px', width: item.boxWidth+'px'}"
-        >{{index}}
-            <div id="tz" v-dragEagle="{setPosition:setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index}}"  >
+        >{{cIndex}}==>{{index}}
+            <div id="tz" v-dragEagle="{setPosition:setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cIndex: cIndex}}"  >
                 <div title="拖动调整大小" id="move_tz"></div>
             </div>
         </div>
@@ -21,31 +21,49 @@
 </template>
 
 <script>
+import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
 export default {
     components: {},
     data() {
         return {
             src : 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-            boxInfoOutput : [],
+            // hotSpotsPosition : [],
             imgSize  : {
                 width : 0,
                 height: 0
             }
         };
     },
-    computed: {},
-    created() {},
-    mounted() {
-        let that = this;
-        that.$root.Bus.$on('addHotSpot', ()=>{
-            that.boxInfoOutput.push({
-                boxHeight : 100,
-                boxWidth  : 200,
-                boxTLPoint: { x: 0, y: 0 },
-            })
+    props: {
+        setData:{
+            type: Object,
+            default: ()=> {}
+        },
+        cIndex: { type: Number, }
+    },
+    computed: {
+        ...mapState({
+            componentsList: state => state.componentsList,
+            clickComIndex : state => state.clickComIndex,	
         })
     },
+    created() {
+        console.log(this.setData, "SETTING")
+    },
+    mounted() {
+        let that = this;
+        // that.$root.Bus.$on('addHotSpot', ()=>{
+        //     that.hotSpotsPosition.push({
+        //         boxHeight : 100,
+        //         boxWidth  : 200,
+        //         boxTLPoint: { x: 0, y: 0 },
+        //     })
+        // })
+    },
     methods: {
+        ...mapMutations([ 
+            'updateData'
+        ]),
         imgLoaded(){
             let that =this;
             setTimeout(() => {
@@ -55,20 +73,29 @@ export default {
             }, 100);
         },
         // 热区
-        setPosition({left, top, index}){
+        setPosition({left, top, index, cIndex}){
             let that = this;
             let boxInfoData = that.$refs.dragBox[index].getBoundingClientRect();
-            that.$set(that.boxInfoOutput[index], 'boxHeight', boxInfoData.height);
-            that.$set(that.boxInfoOutput[index], 'boxWidth', boxInfoData.width);
-            that.$set(that.boxInfoOutput[index], 'boxTLPoint', {x: left, y: top});
-            that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.boxInfoOutput})
+
+            that.updateData({clickComIndex: cIndex})
+            let dataItem = that.componentsList[that.clickComIndex].data.hotSpotsPosition[index];
+
+            that.$set(dataItem, 'boxHeight', boxInfoData.height);
+            that.$set(dataItem, 'boxWidth', boxInfoData.width);
+            that.$set(dataItem, 'boxTLPoint', {x: left, y: top});
+            // that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.hotSpotsPosition})
+            that.updateData({componentsList: that.componentsList})
         },
     },
     watch:{
-        boxInfoOutput(newVal, oldVal){          //添加的时候出发（解决没有移动的时候不emit数据）
+        componentsList(newVal, oldVal){          //添加的时候出发（解决没有移动的时候不emit数据）
             let that = this;
             console.log('adddddd')
-            that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.boxInfoOutput})
+            // that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.hotSpotsPosition})
+            that.updateData({componentsList: that.componentsList})
+        },
+        cIndex(newVal, oldVal){
+            console.log(newVal, "cindex变化")
         }
     },
     beforeDestroy(){

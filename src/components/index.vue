@@ -5,7 +5,7 @@
                 <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
                     <transition-group>
                         <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event,index,item.componentName)">
-                            <component :is="item.componentName" :setData="item.data"></component>
+                            <component :is="item.componentName" :setData="item.data" :cIndex="index"></component>
                         </div>
                     </transition-group>
                 </draggable>
@@ -19,7 +19,7 @@
         </div>
         <el-button type="primary" @click="submitData">提交</el-button>
         <!-- 设置 -->
-        <div v-if="showSetBlock" class="settingBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
+        <div v-if="showSetBlock" class="settingBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">{{clickComIndex}}
             <component :is="currentComType+'Setting'" :showData="showData" @cancel="settingCancel" @confirm="settingConfirm" @delete="deleteComponent"></component>
         </div>
     </div>
@@ -27,6 +27,7 @@
 
 <script>
 import draggable from "vuedraggable";
+import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
 // 组件
 import inputComponent from "./component-library/input.vue";
 import selectComponent from "./component-library/select.vue";
@@ -45,17 +46,28 @@ export default {
     data() {
         return {
             enabled       : true,
-            componentsList: [],
-            allComponents : [],
             showSetBlock  : false,
             settingPosit  : {
                 top  : 0,
                 left : 0
             },
-            clickComIndex : null,       //当前点击的组件下标
+            // clickComIndex : null,       //当前点击的组件下标
             currentComType: "",         //当前点击的组件类型；
             showData      : {},
         };
+    },
+    computed: {
+        ...mapState({
+            clickComIndex : state => state.clickComIndex,	
+        }),
+        componentsList: {
+            get(){
+                return this.$store.state.componentsList
+            },
+            set(newVal){
+                this.$store.commit('updateData', {componentsList: newVal})
+            }
+        }
     },
     mounted(){
         //为了防止火狐浏览器拖拽的时候以新标签打开，此代码真实有效
@@ -65,6 +77,9 @@ export default {
         };
     },
     methods: {
+        ...mapMutations([
+            'updateData'
+        ]),
         // 添加组件
         addComponents(cName){
             let that =this;
@@ -78,14 +93,17 @@ export default {
                 componentName: cName, 
                 data: {}
             })
-            console.log(that.componentsList)
+            that.updateData({componentsList: that.componentsList})
+            console.log(that.$store.state, "storeState")
         },
         // 展示设置框
         showSetting(e,index,cName){
             let that = this;
             let elPositionInfo = e.currentTarget.getBoundingClientRect();
 
-            that.clickComIndex = index;
+            // that.clickComIndex = index;
+            that.updateData({clickComIndex: index})
+
             that.currentComType= cName.split('Component')[0];
             that.showSetBlock  = true;
             that.showData      = that.componentsList[that.clickComIndex]['data'];
@@ -96,14 +114,15 @@ export default {
         settingCancel(){
             let that = this;
             that.showData = {};
-            that.clickComIndex = null;
+            that.updateData({clickComIndex: null})
             that.showSetBlock  = false;
         },
         // 确认设置
         settingConfirm(data){
             let that = this;
+            console.log(data, "ddd00000")
             that.$set(that.componentsList[that.clickComIndex], 'data', data)
-            that.clickComIndex = null;
+            that.updateData({clickComIndex: null})
             that.showSetBlock = false;
             console.log(that.componentsList)
         },
@@ -111,7 +130,7 @@ export default {
         deleteComponent(){
             let that = this;
             that.componentsList.splice(that.clickComIndex, 1)
-            that.clickComIndex = null;
+            that.updateData({clickComIndex: null})
             that.showSetBlock = false;
         },
         // 提交页面
@@ -123,7 +142,7 @@ export default {
         datadragStart(e) {
             let that = this;
             console.log(e, "拖动开始");
-            that.clickComIndex = null;
+            that.updateData({clickComIndex: null})
             that.showSetBlock = false;
         },
         datadragUpdate(e) {

@@ -14,7 +14,7 @@
 </template>
 
 <script>
-
+import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
 export default {
     components: {},
     data() {
@@ -28,30 +28,58 @@ export default {
             default: ()=> {}
         },
     },
+    computed: {
+        ...mapState({
+            componentsList: state => state.componentsList,
+            clickComIndex : state => state.clickComIndex,	
+        })
+    },
     created() {
-        
+        console.log(this.showData, "SHOWDATA")
     },
     mounted() {
         let that = this;
-        that.$root.Bus.$on('setHotPosition', value=>{
-            that.hotSpotsPosition = value;
-        })
+        // that.$root.Bus.$on('setHotPosition', value=>{
+        //     that.hotSpotsPosition = value;
+        // })
     },
     methods: {
+        ...mapMutations([ 
+            'updateData'
+        ]),
         addHotSpots(){
             let that = this;
-            that.$root.Bus.$emit('addHotSpot')
+            console.log(that.componentsList[that.clickComIndex], that.clickComIndex, "******************")
+            that.hotSpotsPosition.push({
+                boxHeight : 100,
+                boxWidth  : 200,
+                boxTLPoint: { x: 0, y: 0 },
+            })
+
+            that.$set(that.componentsList[that.clickComIndex], "data", that.hotSpotsPosition);
+            that.updateData({componentsList: that.componentsList})
+            console.log(that.componentsList, "o[o[")
+            // that.$root.Bus.$emit('addHotSpot')
         },
         cancel(){
             this.$emit('cancel')
         },
         confirm(){
-            this.$emit('confirm', this.hotSpotsPosition)
+            let that = this;
+            let storeData = that.componentsList[that.clickComIndex].data;
+
+            console.log(that.hotSpotsPosition, that.clickComIndex, "p-p-p")
+            that.$emit('confirm', {hotSpotsPosition: that.hotSpotsPosition})
         },
         delet(){
             this.$emit('delete')
         }
     },
+    watch: {
+        clickComIndex(newVal, oldVal){
+            console.log(newVal, "clickIndex")
+        }
+    }
 }
 </script>
 <style lang='less' scoped>
