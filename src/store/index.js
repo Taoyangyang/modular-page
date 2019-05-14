@@ -10,16 +10,26 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         // 页面
-        componentsList: [],
-        clickComIndex : null,           //当前点击的组件下标
+        componentsList  : [],
+        clickComIndex   : null,           //当前点击的组件下标
         // input组件
-        inputVal  : '',
-        formDatas : {
-            inputName   : "",
-            inputPlshd  : "",
+        inputVal        : '',
+        inputFormDatas  : {
+            inputName  : "",
+            inputPlshd : "",
         },
         // 图片组件
-        hotSpotsPosition: [],
+        
+        // 轮播组件
+        // carouselFormItem: {
+        //     carouselImages : [
+        //         {img: 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg', id: Math.random()},
+        //         {img: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', id: Math.random()},
+        //     ],
+        //     carouselHeight : 150,
+        //     autoplay       : true,
+        //     interval       : 2000
+        // }
     },
     mutations: {
         updateData(state, payload) {

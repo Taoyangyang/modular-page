@@ -1,11 +1,11 @@
 <template>
     <div class="index">
         <div class="content flex_between">
-            <div class="pageContent">
+            <div class="pageContent" ref="componentsDiv">
                 <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
                     <transition-group>
                         <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event,index,item.componentName)">
-                            <component :is="item.componentName" :setData="item.data" :cIndex="index"></component>
+                            <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
                         </div>
                     </transition-group>
                 </draggable>
@@ -19,7 +19,7 @@
         </div>
         <el-button type="primary" @click="submitData">提交</el-button>
         <!-- 设置 -->
-        <div v-if="showSetBlock" class="settingBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">{{clickComIndex}}
+        <div v-if="showSetBlock" class="settingBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
             <component :is="currentComType+'Setting'" :showData="showData" @cancel="settingCancel" @confirm="settingConfirm" @delete="deleteComponent"></component>
         </div>
     </div>
@@ -36,12 +36,13 @@ import imageComponent from "./component-library/image.vue";
 // 组件设置
 import inputSetting from "./component-library/component-settingDialog/inputSetting.vue";
 import imageSetting from "./component-library/component-settingDialog/imageSetting.vue";
+import carouselSetting from "./component-library/component-settingDialog/carouselSetting.vue";
 
 export default {
     name: "index",
     components: {
         draggable, inputComponent, selectComponent, carouselComponent, imageComponent, 
-        inputSetting, imageSetting
+        inputSetting, imageSetting, carouselSetting
     },
     data() {
         return {
@@ -70,6 +71,8 @@ export default {
         }
     },
     mounted(){
+        let that = this;
+        that.$refs.componentsDiv.addEventListener("scroll", that.componentDivScroll);
         //为了防止火狐浏览器拖拽的时候以新标签打开，此代码真实有效
         document.body.ondrop = function(event) {
             event.preventDefault();
@@ -87,10 +90,12 @@ export default {
             if(cName=='imageComponent'){
                 that.$root.Bus.$off('addHotSpot');
             }
-
+            //计算动态的id值
+            let componentsLen = that.componentsList.length;
+            let dynamicID     = componentsLen ? that.componentsList[componentsLen-1].id+1 : 1;
             that.componentsList.push({
-                id  : that.componentsList.length, 
                 componentName: cName, 
+                id  : dynamicID, 
                 data: {}
             })
             that.updateData({componentsList: that.componentsList})
@@ -104,9 +109,9 @@ export default {
             // that.clickComIndex = index;
             that.updateData({clickComIndex: index})
 
-            that.currentComType= cName.split('Component')[0];
-            that.showSetBlock  = true;
-            that.showData      = that.componentsList[that.clickComIndex]['data'];
+            that.showSetBlock   = true;
+            that.currentComType = cName.split('Component')[0];
+            that.showData       = that.componentsList[that.clickComIndex]['data'];
             that.$set(that.settingPosit, 'top', elPositionInfo.top - 60)
             that.$set(that.settingPosit, 'left', elPositionInfo.left + elPositionInfo.width + 30);
         },
@@ -120,17 +125,22 @@ export default {
         // 确认设置
         settingConfirm(data){
             let that = this;
-            console.log(data, "ddd00000")
+            console.log(data, that.$store.state, "dddd")
             that.$set(that.componentsList[that.clickComIndex], 'data', data)
-            that.updateData({clickComIndex: null})
+            that.updateData({
+                clickComIndex : null,
+                componentsList: that.componentsList
+            })
             that.showSetBlock = false;
-            console.log(that.componentsList)
         },
         // 删除组件
         deleteComponent(){
             let that = this;
             that.componentsList.splice(that.clickComIndex, 1)
-            that.updateData({clickComIndex: null})
+            that.updateData({
+                clickComIndex : null,
+                componentsList: that.componentsList
+            })
             that.showSetBlock = false;
         },
         // 提交页面
@@ -138,7 +148,8 @@ export default {
             let that =this;
             console.log(that.componentsList)
         },
-        // 拖动的事件等等
+
+        // 拖动的事件等等=======================================================>
         datadragStart(e) {
             let that = this;
             console.log(e, "拖动开始");
@@ -159,6 +170,11 @@ export default {
             console.log(`拖动前的索引 : ${e.draggedContext.index}, 拖动后的索引 : ${e.draggedContext.futureIndex}, 拖拽前-上次数据：`, e.relatedContext.list);
             return (e.draggedContext.element.text!=='Gold（不可拖动元素）');
         },
+        // div中内容滚动检测
+        componentDivScroll(e){
+            let that = this;
+            that.settingCancel();
+        }
     }
 };
 </script>

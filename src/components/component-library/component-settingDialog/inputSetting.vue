@@ -1,11 +1,11 @@
 <template>
     <div class="inputSetting">
-        <el-form :model="formDatas">
-            <el-form-item label="输入框的标签" :label-width="formLabelWidth">
-                <el-input v-model="formDatas.inputName" autocomplete="off"></el-input>
+        <el-form :model="inputFormDatas">
+            <el-form-item label="输入框的标签" label-width="120px">
+                <el-input v-model="inputFormDatas.inputName" autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item label="输入框的占位符" :label-width="formLabelWidth">
-                <el-input v-model="formDatas.inputPlshd" autocomplete="off"></el-input>
+            <el-form-item label="输入框的占位符" label-width="120px">
+                <el-input v-model="inputFormDatas.inputPlshd" autocomplete="off"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -24,11 +24,10 @@ export default {
     components: {},
     data() {
         return {
-            // formDatas : {
+            // inputFormDatas : {
             //     inputName   : "",
             //     inputPlshd  : "",
             // },
-            formLabelWidth: "120px"
         };
     },
     props: {
@@ -39,13 +38,13 @@ export default {
     },
     computed: {
         ...mapState({
-            formDatas : state => state.formDatas,				
+            inputFormDatas : state => state.inputFormDatas,				
         }),
         getData(){
             let that = this;
-            // that.formDatas = this.showData
-            that.updateData({formDatas: that.showData})
-            return that.formDatas;
+            // that.inputFormDatas = this.showData
+            that.updateData({inputFormDatas: that.showData})
+            return that.inputFormDatas;
         }
     },
     methods: {
@@ -56,7 +55,7 @@ export default {
             this.$emit('cancel')
         },
         confirm(){
-            this.$emit('confirm', this.formDatas)
+            this.$emit('confirm', this.inputFormDatas)
         },
         delet(){
             this.$emit('delete')

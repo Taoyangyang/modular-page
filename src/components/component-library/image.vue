@@ -10,10 +10,10 @@
         </div>
         <!-- 热区 -->
         <div class="eagleMapContainer" v-for="(item,index) in setData.hotSpotsPosition" :key="index" 
-            v-dragMove="{setPosition: setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cIndex: cIndex}}" ref="dragBox" 
+            v-dragMove="{setPosition: setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cId: cId}}" ref="dragBox" 
             :style="{left: item.boxTLPoint.x+'px', top: item.boxTLPoint.y+'px', height: item.boxHeight+'px', width: item.boxWidth+'px'}"
-        >{{cIndex}}==>{{index}}
-            <div id="tz" v-dragEagle="{setPosition:setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cIndex: cIndex}}"  >
+        >{{index}}
+            <div id="tz" v-dragEagle="{setPosition:setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cId: cId}}"  >
                 <div title="拖动调整大小" id="move_tz"></div>
             </div>
         </div>
@@ -35,16 +35,12 @@ export default {
         };
     },
     props: {
-        setData:{
-            type: Object,
-            default: ()=> {}
-        },
-        cIndex: { type: Number, }
+        setData: { type: Object | Array },
+        cId    : { type: Number, }
     },
     computed: {
         ...mapState({
             componentsList: state => state.componentsList,
-            clickComIndex : state => state.clickComIndex,	
         })
     },
     created() {
@@ -73,12 +69,10 @@ export default {
             }, 100);
         },
         // 热区
-        setPosition({left, top, index, cIndex}){
+        setPosition({left, top, index, cId}){
             let that = this;
             let boxInfoData = that.$refs.dragBox[index].getBoundingClientRect();
-
-            that.updateData({clickComIndex: cIndex})
-            let dataItem = that.componentsList[that.clickComIndex].data.hotSpotsPosition[index];
+            let dataItem = that.componentsList.filter((item)=>item.id==cId)[0].data.hotSpotsPosition[index];
 
             that.$set(dataItem, 'boxHeight', boxInfoData.height);
             that.$set(dataItem, 'boxWidth', boxInfoData.width);
@@ -93,9 +87,6 @@ export default {
             console.log('adddddd')
             // that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.hotSpotsPosition})
             that.updateData({componentsList: that.componentsList})
-        },
-        cIndex(newVal, oldVal){
-            console.log(newVal, "cindex变化")
         }
     },
     beforeDestroy(){
