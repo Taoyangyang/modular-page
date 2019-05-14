@@ -58,7 +58,7 @@ export default {
 
             that.$set(that.componentsList[that.clickComIndex], "data", that.hotSpotsPosition);
             that.updateData({componentsList: that.componentsList})
-            console.log(that.componentsList, "o[o[")
+            console.log(that.$store.state, "o[o[")
             // that.$root.Bus.$emit('addHotSpot')
         },
         cancel(){

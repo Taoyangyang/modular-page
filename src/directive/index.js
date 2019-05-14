@@ -1,7 +1,7 @@
 import Vue from 'vue'
 
 Vue.directive('dragMove', {
-    update: function (el, bindings, vnode) {
+    inserted: function (el, bindings, vnode) {
         el.onmousedown = function (e) {
             e.stopPropagation()
             let boxWidth  = el.offsetWidth;
@@ -36,7 +36,7 @@ Vue.directive('dragMove', {
     }
 })
 Vue.directive('dragEagle', {
-    update: function (el, bindings, vnode) {
+    inserted: function (el, bindings, vnode) {
         el.onmousedown = function (e) {
             e.stopPropagation()
             let PNode = el.parentNode;
