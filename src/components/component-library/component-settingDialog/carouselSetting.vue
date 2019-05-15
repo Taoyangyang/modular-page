@@ -15,6 +15,14 @@
                     <el-input v-model.number="carouselFormItem.interval" :disabled="!carouselFormItem.autoplay" placeholder="切换间隔(毫秒数)"></el-input>
                 </el-col>
             </el-form-item>
+            <!-- 展示数据区域 -->
+            <div class="showDataBlock">
+                <div class="showItem flex_start_v" v-for="(item,index) in carouselFormItem.carouselImages" :key="index">
+                    <img :src="item.imgUrl" width="40" height="40" @click="chooseImg(index)">
+                    <input type="text" v-model="item.linkUrl" placeholder="请输入跳转连接">
+                    <i class="delIcon el-icon-circle-close" @click="delCarouselItem(index)"></i>
+                </div>
+            </div>
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="cancel">取 消</el-button>
@@ -33,10 +41,10 @@ export default {
             carouselImagesLen: 0,
             carouselFormItem : {
                 carouselImages : [
-                    {img: 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg', id: Math.random()},
-                    {img: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', id: Math.random()},
+                    {imgUrl: 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg', linkUrl: '', id: Math.random()},
+                    {imgUrl: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', linkUrl: '', id: Math.random()},
                 ],
-                carouselHeight : 150,
+                carouselHeight : '150',
                 autoplay       : true,
                 interval       : 2000
             }
@@ -48,13 +56,16 @@ export default {
             default: ()=> {}
         },
     },
+    computed: {
+        ...mapState({
+            componentsList: state => state.componentsList,
+            clickComIndex : state => state.clickComIndex,	
+        })
+    },
     mounted(){
         let that = this;
-        if(that.showData.carouselImages){
-            that.update(that.showData)
-        }else{
-            that.update(that.carouselFormItem)
-        }
+        let objEmpty = Object.keys(that.showData).length==0;
+        that.update(objEmpty ? that.carouselFormItem : that.showData)
     },
     methods: {
         ...mapMutations([
@@ -65,6 +76,23 @@ export default {
             that.carouselFormItem  = newVal;
             carousImgs = newVal.carouselImages;
             that.carouselImagesLen = carousImgs ? (carousImgs.length).toString() : 0;
+        },
+        // 选择图片
+        chooseImg(index){
+            let that = this;
+            console.log("选择图片", index)
+        },
+        // 删除宫格
+        delCarouselItem(index){
+            let that = this;
+            that.$confirm('是否删除该图片?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText : '取消',
+                type : 'warning'
+            }).then(()=>{
+                that.$delete(that.componentsList[that.clickComIndex].data.carouselImages, index)
+                that.updateData({ componentsList: that.componentsList });
+            }).catch(()=>{})
         },
         cancel(){
             this.$emit('cancel')
@@ -88,8 +116,9 @@ export default {
                 that.carouselFormItem.carouselImages = [];
                 for(let i=0; i<imagesNum; i++){
                     that.carouselFormItem.carouselImages.push({
-                        img: 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',   
-                        id : Math.random()
+                        id      : Math.random(),
+                        imgUrl  : 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',  
+                        linkUrl : ''
                     })
                 }
             }
@@ -101,11 +130,46 @@ export default {
                 }
             }
         },
-        showData(newVal, oldVal){
-            this.update(newVal)
-        }
+        showData: {
+            handler(newVal, oldVal) {
+                this.update(newVal)
+    　　　　},
+    　　　　deep: true
+        },
     }
 };
 </script>
 <style lang='less' scoped>
+    .carouselSetting{
+        .showDataBlock{
+            margin-bottom: 10px;
+            max-height: 300px;
+            overflow: auto;
+            font-size: 14px;
+            .showItem{
+                position: relative;
+                margin-top: 5px;
+                padding: 5px 2px;
+                padding-left: 10px;
+                text-align: left;
+                border-radius: 3px;
+                border: 1px solid #ccc;
+                input{
+                    margin-left: 10px;
+                    height: 22px;
+                    width: calc(~"100% - 100px");
+                    border: 1px solid #f1f1f1;
+                    padding: 0 5px;
+                    border-radius: 3px;
+                }
+                .delIcon{
+                    position: absolute;
+                    right: 2px;
+                    top: 5px;
+                    cursor: pointer;
+                    color: #F56C6C;
+                }
+            }
+        }
+    }
 </style>

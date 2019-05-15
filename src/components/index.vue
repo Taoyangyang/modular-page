@@ -15,6 +15,9 @@
                 <el-button @click="addComponents('selectComponent')">选择框</el-button>
                 <el-button @click="addComponents('carouselComponent')">轮播图</el-button>
                 <el-button @click="addComponents('imageComponent')">图片</el-button>
+                <el-button @click="addComponents('videoComponent')">视频</el-button>
+                <el-button @click="addComponents('gridComponent')">宫格</el-button>
+                <el-button @click="addComponents('buttonComponent')">按钮</el-button>
             </div>
         </div>
         <el-button type="primary" @click="submitData">提交</el-button>
@@ -33,16 +36,23 @@ import inputComponent from "./component-library/input.vue";
 import selectComponent from "./component-library/select.vue";
 import carouselComponent from "./component-library/carousel.vue";
 import imageComponent from "./component-library/image.vue";
+import videoComponent from "./component-library/video.vue";
+import gridComponent from "./component-library/grid.vue";
+import buttonComponent from "./component-library/button.vue";
 // 组件设置
 import inputSetting from "./component-library/component-settingDialog/inputSetting.vue";
 import imageSetting from "./component-library/component-settingDialog/imageSetting.vue";
 import carouselSetting from "./component-library/component-settingDialog/carouselSetting.vue";
+import selectSetting from "./component-library/component-settingDialog/selectSetting.vue";
+import videoSetting from "./component-library/component-settingDialog/videoSetting.vue";
+import gridSetting from "./component-library/component-settingDialog/gridSetting.vue";
+import buttonSetting from "./component-library/component-settingDialog/buttonSetting.vue";
 
 export default {
     name: "index",
     components: {
-        draggable, inputComponent, selectComponent, carouselComponent, imageComponent, 
-        inputSetting, imageSetting, carouselSetting
+        draggable, inputComponent, selectComponent, carouselComponent, imageComponent, videoComponent, gridComponent, buttonComponent,
+        inputSetting, imageSetting, carouselSetting, selectSetting, videoSetting, gridSetting, buttonSetting
     },
     data() {
         return {
@@ -86,20 +96,16 @@ export default {
         // 添加组件
         addComponents(cName){
             let that =this;
-            //图片组件的清除事件
-            if(cName=='imageComponent'){
-                that.$root.Bus.$off('addHotSpot');
-            }
             //计算动态的id值
             let componentsLen = that.componentsList.length;
-            let dynamicID     = componentsLen ? that.componentsList[componentsLen-1].id+1 : 1;
+            let dynamicID = componentsLen ? that.componentsList.reduce((item1, item2) => (item1.id > item2.id ? item1 : item2)).id+1 : 1;
+
             that.componentsList.push({
                 componentName: cName, 
                 id  : dynamicID, 
                 data: {}
             })
             that.updateData({componentsList: that.componentsList})
-            console.log(that.$store.state, "storeState")
         },
         // 展示设置框
         showSetting(e,index,cName){
@@ -185,11 +191,18 @@ export default {
         width: 100%;
         .content{
             .pageContent{
-                padding: 10px;
+                padding: 5px;
                 width: 375px;
                 height: 667px;
                 overflow-y: auto;
                 border: 2px solid #ccc;
+            }
+            .btns{
+                width: 450px;
+                text-align: left;
+                /deep/ .el-button{
+                    margin: 10px;
+                }
             }
             .drag-item {
                 padding: 10px;
@@ -204,7 +217,7 @@ export default {
             position: relative;
             position: absolute;
             padding: 10px;
-            width: 300px;
+            width: 400px;
             background: #f1f1f1;
             border-radius: 5px;
             &::before{

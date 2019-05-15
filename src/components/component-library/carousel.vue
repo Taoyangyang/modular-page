@@ -2,7 +2,7 @@
     <div class="carousel">
         <el-carousel :height="(setData.carouselHeight||'150')+'px'" :autoplay="setData.autoplay" :interval="setData.interval" trigger="click">
             <el-carousel-item v-for="item in setData.carouselImages" :key="item.id">
-                <el-image :src="item.img" fit="contain" style="width:100%; height:100%"></el-image>
+                <el-image :src="item.imgUrl" fit="contain" style="width:100%; height:100%"></el-image>
             </el-carousel-item>
         </el-carousel>
     </div>

@@ -1,7 +1,7 @@
 <template>
     <div class="imageComponent">
         <div class="imgBlock" ref="imageEle">
-            <el-image :src="src" @load="imgLoaded" >
+            <el-image :src="setData.imageUrl || imageUrl" @load="imgLoaded" >
                 <div slot="placeholder" class="image-slot">
                     加载中
                     <span class="dot">...</span>
@@ -26,8 +26,7 @@ export default {
     components: {},
     data() {
         return {
-            src : 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-            // hotSpotsPosition : [],
+            imageUrl : 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
             imgSize  : {
                 width : 0,
                 height: 0
@@ -48,13 +47,6 @@ export default {
     },
     mounted() {
         let that = this;
-        // that.$root.Bus.$on('addHotSpot', ()=>{
-        //     that.hotSpotsPosition.push({
-        //         boxHeight : 100,
-        //         boxWidth  : 200,
-        //         boxTLPoint: { x: 0, y: 0 },
-        //     })
-        // })
     },
     methods: {
         ...mapMutations([ 
@@ -77,15 +69,12 @@ export default {
             that.$set(dataItem, 'boxHeight', boxInfoData.height);
             that.$set(dataItem, 'boxWidth', boxInfoData.width);
             that.$set(dataItem, 'boxTLPoint', {x: left, y: top});
-            // that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.hotSpotsPosition})
             that.updateData({componentsList: that.componentsList})
         },
     },
     watch:{
         componentsList(newVal, oldVal){          //添加的时候出发（解决没有移动的时候不emit数据）
             let that = this;
-            console.log('adddddd')
-            // that.$root.Bus.$emit("setHotPosition", {hotSpotsPosition: that.hotSpotsPosition})
             that.updateData({componentsList: that.componentsList})
         }
     },
