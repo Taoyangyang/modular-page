@@ -2,8 +2,11 @@
     <div class="buttonComponent">
         <el-form ref="form" label-width="0">
             <el-form-item>
-                <el-button type="primary" plain>确定</el-button>
-                <el-button>取消</el-button>
+                <el-button v-for="(item,index) in setData.itemArray" :key="index" 
+                    :type="item.type" :size="item.size" :plain="item.style=='plain'" :round="item.style=='round'"
+                >
+                    {{item.text}}
+                </el-button>
             </el-form-item>
         </el-form>
     </div>

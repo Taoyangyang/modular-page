@@ -153,6 +153,7 @@ export default {
         submitData(){
             let that =this;
             console.log(that.componentsList)
+            console.log(JSON.stringify(that.componentsList))
         },
 
         // 拖动的事件等等=======================================================>

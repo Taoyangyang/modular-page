@@ -1,6 +1,6 @@
 <template>
     <div class="buttonSetting">
-        <el-button type="primary" icon="el-icon-circle-plus">添加按钮</el-button>
+        <el-button type="primary" icon="el-icon-circle-plus" @click="addBtn">添加按钮</el-button>
         <!-- 展示数据区域 -->
         <div class="showDataBlock">
             <div class="showItem flex_start_v" v-for="(item,index) in buttonFormDatas.itemArray" :key="index">
@@ -24,7 +24,7 @@
                         </el-select>
                     </el-col>
                 </el-row>
-                <i class="delIcon el-icon-circle-close" @click="delGridItem(index)"></i>
+                <i class="delIcon el-icon-circle-close" @click="delBtn(index)"></i>
             </div>
         </div>
         <div slot="footer" class="dialog-footer">
@@ -43,8 +43,8 @@ export default {
         return {
             buttonFormDatas : {
                 itemArray: [
-                    {text: "确定", type: '', size: ''},
-                    {text: "取消", type: '', size: ''},
+                    {text: "确定", type: '', size: '', style: ''},
+                    {text: "取消", type: '', size: '', style: ''},
                 ]
             },
             buttonTypes: [
@@ -63,9 +63,8 @@ export default {
             ],
             buttonStyles: [
                 {value: '',        label: '默认'},
-                {value: 'medium',  label: '中型'},
-                {value: 'small',   label: '小型'},
-                {value: 'mini',    label: '超小'},
+                {value: 'plain',   label: '简洁'},
+                {value: 'round',   label: '圆角'},
             ],
         };
     },
@@ -90,10 +89,15 @@ export default {
         ...mapMutations([
             'updateData'
         ]),
-        // 删除宫格
-        delGridItem(index){
+        // 添加按钮
+        addBtn(){
+            let that =this;
+            that.buttonFormDatas.itemArray.push({text: "按钮", type: '', size: '', style: ''})
+        },
+        // 删除按钮
+        delBtn(index){
             let that = this;
-            that.$confirm('是否删除该宫格?', '提示', {
+            that.$confirm('是否删除该按钮?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText : '取消',
                 type : 'warning'
@@ -115,7 +119,7 @@ export default {
     watch: {
         showData: {
             handler(newVal, oldVal) {
-                this.buttonFormDatas = newVal;
+                this.buttonFormDatas = newVal.itemArray ? newVal : this.buttonFormDatas;
     　　　　},
     　　　　deep: true
         },

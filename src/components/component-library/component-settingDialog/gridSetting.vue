@@ -108,7 +108,7 @@ export default {
     watch: {
         showData: {
             handler(newVal, oldVal) {
-                this.gridFormDatas = newVal;
+                this.gridFormDatas = newVal.totalNum ? newVal : this.gridFormDatas;
     　　　　},
     　　　　deep: true
         },
