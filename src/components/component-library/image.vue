@@ -61,7 +61,7 @@ export default {
             }, 100);
         },
         // 热区
-        setPosition({left, top, index, cId}){
+        setPosition({left=0, top=0, index=null, cId=null} = {}){
             let that = this;
             let boxInfoData = that.$refs.dragBox[index].getBoundingClientRect();
             let dataItem = that.componentsList.filter((item)=>item.id==cId)[0].data.hotSpotsPosition[index];
