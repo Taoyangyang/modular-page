@@ -14,6 +14,12 @@ import './directive'
 
 Vue.config.productionTip = false
 
+// debug统计
+import * as fundebug from "fundebug-javascript";
+import fundebugVue from "fundebug-vue";
+fundebug.apikey = "56f2bd96ad6c00786e89193bbff1d8b4e85d5e17fd6ed27b5e240d3abd860521"
+fundebugVue(fundebug, Vue);
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
