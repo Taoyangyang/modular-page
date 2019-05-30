@@ -1,14 +1,24 @@
 <template>
     <div class="index">
         <div class="content flex_between">
-            <div class="pageContent" ref="componentsDiv">
-                <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
-                    <transition-group>
-                        <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event,index,item.componentName)">
-                            <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
-                        </div>
-                    </transition-group>
-                </draggable>
+            <div class="showContent">
+                <div class="pageContent" ref="componentsDiv">
+                    <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
+                        <transition-group>
+                            <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @mouseenter="mouseEnter($event, index, item.componentName)">
+                                <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
+                            </div>
+                        </transition-group>
+                    </draggable>
+                    <!-- 弹框遮罩 -->
+                    <div class="modal" v-if="showModal"></div>
+                </div>
+                <div v-if="showSetBtn && clickComIndex!=null" class="funBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
+                    <i class="icon el-icon-arrow-up" @click="toUp"></i>
+                    <i class="icon el-icon-arrow-down" @click="toDown"></i>
+                    <i class="icon el-icon-s-tools" @click="showSetting"></i>
+                    <i class="icon el-icon-delete" @click="deleteComponent"></i>
+                </div>
             </div>
             <div class="btns">
                 <el-button @click="addComponents('inputComponent')">输入框</el-button>
@@ -18,12 +28,14 @@
                 <el-button @click="addComponents('videoComponent')">视频</el-button>
                 <el-button @click="addComponents('gridComponent')">宫格</el-button>
                 <el-button @click="addComponents('buttonComponent')">按钮</el-button>
+                <el-button @click="addComponents('formComponent')">Form表单</el-button>
+                <el-button @click="addComponents('dialogComponent')">弹窗表单</el-button>
             </div>
         </div>
         <el-button type="primary" @click="submitData">提交</el-button>
         <!-- 设置 -->
         <div v-if="showSetBlock" class="settingBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
-            <component :is="currentComType+'Setting'" :showData="showData" @cancel="settingCancel" @confirm="settingConfirm" @delete="deleteComponent"></component>
+            <component :is="currentComType+'Setting'" :showData="showData" @cancel="settingCancel" @confirm="settingConfirm"></component>
         </div>
     </div>
 </template>
@@ -39,6 +51,8 @@ import imageComponent from "./component-library/image.vue";
 import videoComponent from "./component-library/video.vue";
 import gridComponent from "./component-library/grid.vue";
 import buttonComponent from "./component-library/button.vue";
+import formComponent from "./component-library/form.vue";
+import dialogComponent from "./component-library/dialog.vue";
 // 组件设置
 import inputSetting from "./component-library/component-settingDialog/inputSetting.vue";
 import imageSetting from "./component-library/component-settingDialog/imageSetting.vue";
@@ -47,12 +61,14 @@ import selectSetting from "./component-library/component-settingDialog/selectSet
 import videoSetting from "./component-library/component-settingDialog/videoSetting.vue";
 import gridSetting from "./component-library/component-settingDialog/gridSetting.vue";
 import buttonSetting from "./component-library/component-settingDialog/buttonSetting.vue";
+import formSetting from "./component-library/component-settingDialog/formSetting.vue";
+import dialogSetting from "./component-library/component-settingDialog/formSetting.vue";
 
 export default {
     name: "index",
     components: {
-        draggable, inputComponent, selectComponent, carouselComponent, imageComponent, videoComponent, gridComponent, buttonComponent,
-        inputSetting, imageSetting, carouselSetting, selectSetting, videoSetting, gridSetting, buttonSetting
+        draggable, inputComponent, selectComponent, carouselComponent, imageComponent, videoComponent, gridComponent, buttonComponent, formComponent, dialogComponent,
+        inputSetting, imageSetting, carouselSetting, selectSetting, videoSetting, gridSetting, buttonSetting, formSetting, dialogSetting
     },
     data() {
         return {
@@ -65,11 +81,14 @@ export default {
             // clickComIndex : null,       //当前点击的组件下标
             currentComType: "",         //当前点击的组件类型；
             showData      : {},
+            selecComponent: '',
+            showSetBtn    : false,
         };
     },
     computed: {
         ...mapState({
             clickComIndex : state => state.clickComIndex,	
+            showModal     : state => state.showModal,
         }),
         componentsList: {
             get(){
@@ -108,18 +127,13 @@ export default {
             that.updateData({componentsList: that.componentsList})
         },
         // 展示设置框
-        showSetting(e,index,cName){
+        showSetting(){
             let that = this;
-            let elPositionInfo = e.currentTarget.getBoundingClientRect();
-
-            // that.clickComIndex = index;
-            that.updateData({clickComIndex: index})
+            // that.updateData({clickComIndex: that.selecIndexselecIndex})
 
             that.showSetBlock   = true;
-            that.currentComType = cName.split('Component')[0];
+            that.currentComType = that.selecComponent.split('Component')[0];
             that.showData       = that.componentsList[that.clickComIndex]['data'];
-            that.$set(that.settingPosit, 'top', elPositionInfo.top - 60)
-            that.$set(that.settingPosit, 'left', elPositionInfo.left + elPositionInfo.width + 30);
         },
         // 取消设置
         settingCancel(){
@@ -148,6 +162,34 @@ export default {
                 componentsList: that.componentsList
             })
             that.showSetBlock = false;
+            that.showSetBtn   = false;
+        },
+        //排序
+        toUp(){
+            let that = this;
+            if(that.clickComIndex==0) return false;
+            that.dataInterchange(that.componentsList, that.clickComIndex-1, that.clickComIndex)
+        },
+        //排序
+        toDown(){
+            let that = this;
+            if(that.clickComIndex==that.componentsList.length-1) return false;
+            that.dataInterchange(that.componentsList, that.clickComIndex+1, that.clickComIndex)
+        },
+        // 鼠标进入
+        mouseEnter(e, index, componentName){
+            let that = this;
+            that.showSetBtn = true;
+            if(that.clickComIndex!=index) that.showSetBlock = false;
+
+            that.updateData({ clickComIndex : index, })
+
+            that.selecComponent = componentName;
+            let elPositionInfo = e.currentTarget.getBoundingClientRect();
+
+            that.$set(that.settingPosit, 'top', elPositionInfo.top - 60)
+            that.$set(that.settingPosit, 'left', elPositionInfo.left + elPositionInfo.width+10);
+            
         },
         // 提交页面
         submitData(){
@@ -191,12 +233,57 @@ export default {
         position: relative;
         width: 100%;
         .content{
-            .pageContent{
-                padding: 5px;
-                width: 375px;
-                height: 667px;
-                overflow-y: auto;
-                border: 2px solid #ccc;
+            .showContent{
+                position: relative;
+                .pageContent{
+                    padding: 5px;
+                    width: 375px;
+                    height: 667px;
+                    overflow-y: auto;
+                    border: 2px solid #ccc;
+                    &::-webkit-scrollbar {display:none}
+                    .drag-item {
+                        padding: 10px;
+                        margin: auto;
+                        width: 355px;
+                        position: relative;
+                        background: #f1f1f1;
+                        border: 1px dashed #ccc;
+                        &:hover{
+                            border-color: #409EFF
+                        }
+                    }
+                    .modal{
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,.2);
+                        z-index: 1;
+                    }
+                }
+                .funBlock{
+                    position: absolute;
+                    right: -40px;
+                    top: 0;
+                    padding: 10px 5px;
+                    width: 30px;
+                    font-size: 20px;
+                    text-align: center;
+                    background: #f1f1f1;
+                    border-radius: 5px;
+                    box-shadow: 0 0 5px #a9a9a9;
+                    .icon{
+                        &+.icon{
+                            margin-top: 10px;
+                        }
+                        &:hover{
+                            color: #409EFF;
+                            cursor: pointer;
+                        }
+                    }
+                }
             }
             .btns{
                 width: 450px;
@@ -204,14 +291,6 @@ export default {
                 /deep/ .el-button{
                     margin: 10px;
                 }
-            }
-            .drag-item {
-                padding: 10px;
-                margin: auto;
-                width: 355px;
-                position: relative;
-                background: #f1f1f1;
-                border: 1px dashed #ccc;
             }
         }
         .settingBlock{

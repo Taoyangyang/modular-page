@@ -9,10 +9,11 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
+Vue.config.productionTip = false
 //自定义事件引入
 import './directive'
-
-Vue.config.productionTip = false
+//引入property 方法
+import './libs/utils';
 
 // debug统计
 import * as fundebug from "fundebug-javascript";

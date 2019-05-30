@@ -71,8 +71,7 @@ export default {
     },
     mounted(){
         let that = this;
-        let objEmpty = Object.keys(that.showData).length==0;
-        that.gridFormDatas = objEmpty ? that.gridFormDatas : that.showData;
+        that.gridFormDatas = that.IsEmptyObj(that.showData) ? that.gridFormDatas : that.showData;
     },
     methods: {
         ...mapMutations([

@@ -82,8 +82,7 @@ export default {
     },
     mounted(){
         let that = this;
-        let objEmpty = Object.keys(that.showData).length==0;
-        that.buttonFormDatas = objEmpty ? that.buttonFormDatas : that.showData;
+        that.buttonFormDatas = that.IsEmptyObj(that.showData) ? that.buttonFormDatas : that.showData;
     },
     methods: {
         ...mapMutations([

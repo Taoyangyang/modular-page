@@ -30,6 +30,8 @@ export default new Vuex.Store({
         //     autoplay       : true,
         //     interval       : 2000
         // }
+        // 弹窗遮层
+        showModal    : false,
     },
     mutations: {
         updateData(state, payload) {

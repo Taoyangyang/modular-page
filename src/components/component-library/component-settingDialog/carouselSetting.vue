@@ -64,8 +64,7 @@ export default {
     },
     mounted(){
         let that = this;
-        let objEmpty = Object.keys(that.showData).length==0;
-        that.update(objEmpty ? that.carouselFormItem : that.showData)
+        that.update(that.IsEmptyObj(that.showData) ? that.carouselFormItem : that.showData)
     },
     methods: {
         ...mapMutations([
