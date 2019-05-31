@@ -23,6 +23,10 @@
                     <i class="delIcon el-icon-circle-close" @click="delCarouselItem(index)"></i>
                 </div>
             </div>
+            <elOssUpload :multiple="true" :file-list="imgArr" :show-file-list="true" :close-view="true" 
+                :on-success="ossUploadSuccess" :on-error="onError" :on-remove="onRemove" server-callback-request-url="/presale/oss/upload_scenepicturese" 
+                :needFileName="true"
+            > </elOssUpload>
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="cancel">取 消</el-button>
@@ -34,6 +38,8 @@
 
 <script>
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
+import elOssUpload from "../../publicComponents/el-oss-upload/index"
+
 export default {
     components: {},
     data() {
@@ -46,10 +52,13 @@ export default {
                 ],
                 carouselHeight : '150',
                 autoplay       : true,
-                interval       : 2000
+                interval       : 2000,
+                enterTime      : 0,
+                imgArr         : []
             }
         };
     },
+    components: { elOssUpload },
     props: {
         showData:{
             type: Object,
@@ -64,12 +73,16 @@ export default {
     },
     mounted(){
         let that = this;
-        that.update(that.IsEmptyObj(that.showData) ? that.carouselFormItem : that.showData)
+        that.enterTime = that.getNowTime();
+        that.update(that.IsEmptyObj(that.showData) ? that.carouselFormItem : that.showData);
     },
     methods: {
         ...mapMutations([
             'updateData'
         ]),
+        getNowTime(){
+            return parseInt(new Date().getTime()/100)
+        },
         update(newVal){
             let that = this, carousImgs;
             that.carouselFormItem  = newVal;
@@ -80,6 +93,18 @@ export default {
         chooseImg(index){
             let that = this;
             console.log("选择图片", index)
+        },
+        ossUploadSuccess(res, file, fileList){
+            let that = ths;
+            console.log(res, file, fileList)
+        },
+        onError(res, file, fileList){
+            let that = this;
+            console.log(res, file, fileList)
+        },
+        onRemove(file){
+            let that = this;
+            console.log(file);
         },
         // 删除宫格
         delCarouselItem(index){
@@ -101,25 +126,34 @@ export default {
         },
         delet(){
             this.$emit('delete')
-        }
+        },
+        pushImgs(imgNum){
+            let that = this;
+            for(let i=0; i<imgNum; i++){
+                that.carouselFormItem.carouselImages.push({
+                    id      : Math.random(),
+                    imgUrl  : 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',  
+                    linkUrl : ''
+                })
+            }
+        }   
     },
     watch: {
         carouselImagesLen(newVal, oldVal){
             let that = this;
-            let imagesNum = newVal;
-            if(imagesNum){
-                that.carouselImagesLen = (imagesNum.match(/^\d*/g)[0]) || null;
-                if(imagesNum>10){
-                    imagesNum = that.carouselImagesLen = '10'
-                }
+            if(newVal>=10){
+                newVal = that.carouselImagesLen ='10';
+            }
+            console.log('newVal=>',newVal, "oldVal=>",oldVal, newVal, "ilen")
+            if(newVal && that.getNowTime()-that.enterTime>3){
+                newVal = (newVal.match(/^\d*/g)[0]) || '1';
+                // if(newVal > oldVal){
+                //     that.pushImgs(newVal-oldVal);
+                // }else if(newVal < oldVal){
+                //     that.carouselFormItem.carouselImages.splice(-(oldVal-newVal), oldVal-newVal)
+                // }
                 that.carouselFormItem.carouselImages = [];
-                for(let i=0; i<imagesNum; i++){
-                    that.carouselFormItem.carouselImages.push({
-                        id      : Math.random(),
-                        imgUrl  : 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',  
-                        linkUrl : ''
-                    })
-                }
+                that.pushImgs(newVal);
             }
         },
         'carouselFormItem.carouselHeight':{

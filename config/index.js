@@ -18,22 +18,26 @@ module.exports = {
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,
-    poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
-
-    
-    /**
-     * Source Maps
-     */
-
-    // https://webpack.js.org/configuration/devtool/#development
+    poll: false, 
     devtool: 'cheap-module-eval-source-map',
 
     // If you have problems debugging vue-files in devtools,
     // set this to false - it *may* help
     // https://vue-loader.vuejs.org/en/options.html#cachebusting
     cacheBusting: true,
+    cssSourceMap: false,
 
-    cssSourceMap: true
+    proxyTable: {
+        '/gjw-ges': {
+            changeOrigin: true,
+            target: 'http://tscm.goujiawang.com',
+            secure: false,
+            pathRewrite: {
+                //调swagger上接口使用
+                "^/gjw-ges": ""
+            }
+        }
+    },
   },
 
   build: {

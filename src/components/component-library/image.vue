@@ -102,7 +102,7 @@ export default {
             height: 28px;
             cursor: se-resize;
             z-index: 200001;
-            background-image: url("");
+            // background-image: url("");
             #move_tz {
                 position: absolute;
                 right: 0px;
@@ -111,7 +111,7 @@ export default {
                 height: 27px;
                 cursor: se-resize;
                 z-index: 100;
-                background-image: url("");
+                // background-image: url("");
                 background: #cccccc;
                 background-position: 0px 0px;
                 &:hover{

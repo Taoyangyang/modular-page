@@ -18,18 +18,6 @@ export default new Vuex.Store({
             inputName  : "",
             inputPlshd : "",
         },
-        // 图片组件
-        
-        // 轮播组件
-        // carouselFormItem: {
-        //     carouselImages : [
-        //         {img: 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg', id: Math.random()},
-        //         {img: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg', id: Math.random()},
-        //     ],
-        //     carouselHeight : 150,
-        //     autoplay       : true,
-        //     interval       : 2000
-        // }
         // 弹窗遮层
         showModal    : false,
     },
