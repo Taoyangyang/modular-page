@@ -19,7 +19,7 @@
                     </component>
                     <!-- <i class="delIcon el-icon-circle-close" @click="delformItem(index)"></i> -->
                 </el-form-item>
-                <el-form-item>
+                <el-form-item class="btnItem">
                     <el-button size="medium" :style="{background: formDatas.btnColor, color: 'white'}">提交</el-button>
                 </el-form-item>
             </el-form>
@@ -31,9 +31,9 @@
             </div>
         </div>
         <div slot="footer" class="dialog-footer">
-            <el-button @click="cancel">取 消</el-button>
+            <el-button @click="cancel">关 闭</el-button>
             <el-button type="primary" @click="confirm">确 定</el-button>
-            <el-button type="danger" @click="delet">删除</el-button>
+            <!-- <el-button type="danger" @click="delet">删除</el-button> -->
         </div>
     </div>
 </template>
@@ -74,27 +74,7 @@ export default {
                     compontType: "cascader",
                     type: "",
                     placeholder: "请选择地址",
-                    options: [{
-                        value: 'beijingshi',
-                        label: '北京市',
-                        children: [{
-                            value: 'beijingshi',
-                            label: '北京市',
-                            children: [ { value: 'dongcheng', label: '东城区' }, { value: 'chaoyang', label: '朝阳区' }, { value: 'chongwen', label: '崇文区' }, { value: 'xuanwu', label: '玄武区' } ]
-                        }]
-                    },{
-                        value: 'henan',
-                        label: '河南省',
-                        children: [{
-                            value: 'zhengzhou',
-                            label: '郑州市',
-                            children: [ { value: 'zhongyuan', label: '中原区' }, { value: 'jinshui', label: '金水区' }, { value: 'erqi', label: '二七区' }, { value: 'guanchenghuizu', label: '管城回族区' }, { value: 'shangjie', label: '上街区' } ]
-                        },{
-                            value: 'kaifeng',
-                            label: '开封市',
-                            children: [ { value: 'gulou', label: '鼓楼区' }, { value: 'longting', label: '龙亭区' }, { value: 'chunhe', label: '顺河回族区' }, { value: 'yuwqangtai', label: '禹王台区' }, { value: 'jinming', label: '金明区' }, { value: 'kaifeng', label: '开封县' } ] 
-                        }]
-                    }]
+                    options: []
                 },
             ],
             predefineColors: [ '#ff4500', '#ff8c00', '#ffd700', '#90ee90', '#00ced1', '#1e90ff', '#c71585', 'rgba(255, 69, 0, 0.68)', 'rgb(255, 120, 0)', 'hsv(51, 100, 98)', 'hsva(120, 40, 94, 0.5)', 'hsl(181, 100%, 37%)', 'hsla(209, 100%, 56%, 0.73)' ]
@@ -185,6 +165,7 @@ export default {
 </script>
 <style lang='less'>
 .formSetting {
+    text-align: center;
     .chooseTem{
         margin: 20px;
     }
@@ -214,17 +195,14 @@ export default {
             .el-form-item{
                 margin-bottom: 10px;
                 .el-form-item__content{
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
                     .el-cascader{
                         width: 100%;
                     }
-                    .delIcon{
-                        margin-left: 10px;
-                        color: #F56C6C;
-                        cursor: pointer;
-                    }
+                }
+            }
+            .btnItem{
+                .el-form-item__content{
+                    text-align: left;
                 }
             }
         }

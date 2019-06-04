@@ -11,9 +11,9 @@
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-            <el-button @click="cancel">取 消</el-button>
+            <el-button @click="cancel">关 闭</el-button>
             <el-button type="primary" @click="confirm">确 定</el-button>
-            <el-button type="danger" @click="delet">删除</el-button>
+            <!-- <el-button type="danger" @click="delet">删除</el-button> -->
         </div>
     </div>
 </template>
@@ -70,4 +70,7 @@ export default {
 };
 </script>
 <style lang='less' scoped>
+    .selectSetting{
+        text-align: center;
+    }
 </style>

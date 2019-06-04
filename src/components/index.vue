@@ -1,11 +1,12 @@
 <template>
-    <div class="index">
+    <div class="index legoAdd">
         <div class="content flex_between">
             <div class="showContent">
                 <div class="pageContent" ref="componentsDiv">
                     <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
                         <transition-group>
-                            <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @mouseenter="mouseEnter($event, index, item.componentName)">
+                            <!-- <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @mouseenter="mouseEnter($event, index, item.componentName)"> -->
+                            <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event, index, item.componentName)">
                                 <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
                             </div>
                         </transition-group>
@@ -14,9 +15,9 @@
                     <div class="modal" v-if="showModal"></div>
                 </div>
                 <div v-if="showSetBtn && clickComIndex!=null" class="funBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
-                    <i class="icon el-icon-arrow-up" @click="toUp"></i>
-                    <i class="icon el-icon-arrow-down" @click="toDown"></i>
-                    <i class="icon el-icon-s-tools" @click="showSetting"></i>
+                    <i class="icon el-icon-s-tools"></i>
+                    <i class="icon el-icon-arrow-up" @click="componentSort('up')"></i>
+                    <i class="icon el-icon-arrow-down" @click="componentSort('dowm')"></i>
                     <i class="icon el-icon-delete" @click="deleteComponent"></i>
                 </div>
             </div>
@@ -24,7 +25,8 @@
                 <el-button @click="addComponents('inputComponent')">输入框</el-button>
                 <el-button @click="addComponents('selectComponent')">选择框</el-button>
                 <el-button @click="addComponents('carouselComponent')">轮播图</el-button>
-                <el-button @click="addComponents('imageComponent')">图片</el-button>
+                <el-button @click="addComponents('imageComponent')">热区图片</el-button>
+                <el-button @click="addComponents('imageComponent', {singleImg: true})">单图模式</el-button>
                 <el-button @click="addComponents('videoComponent')">视频</el-button>
                 <el-button @click="addComponents('gridComponent')">宫格</el-button>
                 <el-button @click="addComponents('buttonComponent')">按钮</el-button>
@@ -34,8 +36,9 @@
         </div>
         <el-button type="primary" @click="submitData">提交</el-button>
         <!-- 设置 -->
-        <div v-if="showSetBlock" class="settingBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
-            <component :is="currentComType+'Setting'" :showData="showData" @cancel="settingCancel" @confirm="settingConfirm"></component>
+        <div v-if="showSetBlock" class="settingBlock" :style="{top: setBlockTop+'px', left: settingPosit.left+60+'px'}" ref="settingBlock">
+            <div class="pseudoRow" :style="{top: setRowTop+15+'px'}"></div>
+            <component :is="currentComType+'Setting'" :showData="showData" :config="comConfig" @cancel="settingCancel" @confirm="settingConfirm"></component>
         </div>
     </div>
 </template>
@@ -79,10 +82,13 @@ export default {
                 left : 0
             },
             // clickComIndex : null,       //当前点击的组件下标
-            currentComType: "",         //当前点击的组件类型；
+            currentComType: "",             //当前点击的组件类型；
             showData      : {},
             selecComponent: '',
             showSetBtn    : false,
+            initPageHight : 680,            //初始化显示高度为680
+            setBlockTop   : 0,              //设置框的相对top值
+            setRowTop     : 0,              //设置框的箭头的相对top值
         };
     },
     computed: {
@@ -97,7 +103,7 @@ export default {
             set(newVal){
                 this.$store.commit('updateData', {componentsList: newVal})
             }
-        }
+        },
     },
     mounted(){
         let that = this;
@@ -113,7 +119,7 @@ export default {
             'updateData'
         ]),
         // 添加组件
-        addComponents(cName){
+        addComponents(cName, config={}){
             let that =this;
             //计算动态的id值
             let componentsLen = that.componentsList.length;
@@ -121,19 +127,32 @@ export default {
 
             that.componentsList.push({
                 componentName: cName, 
-                id  : dynamicID, 
-                data: {}
+                id     : dynamicID, 
+                data   : {},
+                config : config
             })
             that.updateData({componentsList: that.componentsList})
         },
         // 展示设置框
-        showSetting(){
+        showSetting(e, index, cName){
             let that = this;
-            // that.updateData({clickComIndex: that.selecIndexselecIndex})
+            if(index!=that.clickComIndex || !that.showSetBlock){
+                that.showSetBlock   = false;
+                that.$nextTick(()=>{
+                    that.showSetBlock = true
+                })
+                // setTimeout(()=>{that.showSetBlock = true}, 50)
+            }
+            let elPositionInfo = e.currentTarget.getBoundingClientRect();
+            that.updateData({clickComIndex: index})
+            
+            that.$set(that.settingPosit, 'top', elPositionInfo.top )
+            that.$set(that.settingPosit, 'left', elPositionInfo.width+20);
 
-            that.showSetBlock   = true;
-            that.currentComType = that.selecComponent.split('Component')[0];
+            that.showSetBtn     = true;
+            that.currentComType = cName.split('Component')[0];
             that.showData       = that.componentsList[that.clickComIndex]['data'];
+            that.comConfig      = that.componentsList[that.clickComIndex]['config'];
         },
         // 取消设置
         settingCancel(){
@@ -145,7 +164,6 @@ export default {
         // 确认设置
         settingConfirm(data){
             let that = this;
-            console.log(data, that.$store.state, "dddd")
             that.$set(that.componentsList[that.clickComIndex], 'data', data)
             that.updateData({
                 clickComIndex : null,
@@ -156,41 +174,47 @@ export default {
         // 删除组件
         deleteComponent(){
             let that = this;
-            that.componentsList.splice(that.clickComIndex, 1)
-            that.updateData({
-                clickComIndex : null,
-                componentsList: that.componentsList
+            that.$confirm('是否删除该组件?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText : '取消',
+                type : 'warning'
+            }).then(()=>{
+                that.componentsList.splice(that.clickComIndex, 1)
+                that.updateData({
+                    clickComIndex : null,
+                    componentsList: that.componentsList
+                })
+                that.showSetBlock = false;
+                that.showSetBtn   = false;
             })
+        },
+        //排序
+        componentSort(type){
+            let that = this;
+            if(type=='up'){
+                if(that.clickComIndex==0) return false;
+                that.dataInterchange(that.componentsList, that.clickComIndex-1, that.clickComIndex);
+            }else{
+                if(that.clickComIndex==that.componentsList.length-1) return false;
+                that.dataInterchange(that.componentsList, that.clickComIndex+1, that.clickComIndex);
+            }
             that.showSetBlock = false;
-            that.showSetBtn   = false;
-        },
-        //排序
-        toUp(){
-            let that = this;
-            if(that.clickComIndex==0) return false;
-            that.dataInterchange(that.componentsList, that.clickComIndex-1, that.clickComIndex)
-        },
-        //排序
-        toDown(){
-            let that = this;
-            if(that.clickComIndex==that.componentsList.length-1) return false;
-            that.dataInterchange(that.componentsList, that.clickComIndex+1, that.clickComIndex)
         },
         // 鼠标进入
-        mouseEnter(e, index, componentName){
-            let that = this;
-            that.showSetBtn = true;
-            if(that.clickComIndex!=index) that.showSetBlock = false;
+        // mouseEnter(e, index, componentName){
+        //     let that = this;
+        //     that.showSetBtn = true;
+        //     if(that.clickComIndex!=index) that.showSetBlock = false;
 
-            that.updateData({ clickComIndex : index, })
+        //     that.updateData({ clickComIndex : index, })
 
-            that.selecComponent = componentName;
-            let elPositionInfo = e.currentTarget.getBoundingClientRect();
-
-            that.$set(that.settingPosit, 'top', elPositionInfo.top - 60)
-            that.$set(that.settingPosit, 'left', elPositionInfo.left + elPositionInfo.width+10);
+        //     that.selecComponent = componentName;
+        //     let elPositionInfo = e.currentTarget.getBoundingClientRect();
             
-        },
+        //     that.$set(that.settingPosit, 'top', elPositionInfo.top - 110)
+        //     that.$set(that.settingPosit, 'left', elPositionInfo.width+40);
+            
+        // },
         // 提交页面
         submitData(){
             let that =this;
@@ -201,22 +225,22 @@ export default {
         // 拖动的事件等等=======================================================>
         datadragStart(e) {
             let that = this;
-            console.log(e, "拖动开始");
+            // console.log(e, "拖动开始");
             that.updateData({clickComIndex: null})
             that.showSetBlock = false;
         },
         datadragUpdate(e) {
-            console.log(e, "拖动更新");
+            // console.log(e, "拖动更新");
             e.preventDefault();
-            console.log(`拖动前的索引 : ${e.oldIndex}, 拖动后的索引 : ${e.newIndex}`);
-            console.log(this.componentsList);
+            // console.log(`拖动前的索引 : ${e.oldIndex}, 拖动后的索引 : ${e.newIndex}`);
+            // console.log(this.componentsList);
         },
         datadragEnd(e) {
-            console.log(e, "拖动结束");
+            // console.log(e, "拖动结束");
         },
         datadragMove(e, originalEve) {
-            console.log(e, originalEve, "拖动移动");
-            console.log(`拖动前的索引 : ${e.draggedContext.index}, 拖动后的索引 : ${e.draggedContext.futureIndex}, 拖拽前-上次数据：`, e.relatedContext.list);
+            // console.log(e, originalEve, "拖动移动");
+            // console.log(`拖动前的索引 : ${e.draggedContext.index}, 拖动后的索引 : ${e.draggedContext.futureIndex}, 拖拽前-上次数据：`, e.relatedContext.list);
             return (e.draggedContext.element.text!=='Gold（不可拖动元素）');
         },
         // div中内容滚动检测
@@ -224,14 +248,46 @@ export default {
             let that = this;
             that.settingCancel();
         }
+    },
+    watch: {
+        showModal(newVal){
+            this.$nextTick(()=>{
+                this.showSetBtn = this.showSetBlock = newVal
+            })
+        },
+        'settingPosit.top'(newVal){
+            let that = this;
+            that.$nextTick(()=>{
+                setTimeout(()=>{
+                    let setHeight = that.$refs.settingBlock.getBoundingClientRect().height;
+                    if(newVal+setHeight > that.initPageHight){
+                        that.setBlockTop = that.initPageHight-setHeight;
+                        that.setRowTop   = setHeight-(that.initPageHight-newVal);
+                    }else{
+                        that.setBlockTop = newVal<0 ? 0: newVal;
+                        that.setRowTop   = 0
+                    }
+                }, 20)
+            })
+        }
     }
 };
 </script>
 
 <style lang="less" scoped>
+    .legoAdd{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        background: white
+    }
     .index{
-        position: relative;
+        // position: relative;
         width: 100%;
+        overflow-y: auto;
         .content{
             .showContent{
                 position: relative;
@@ -243,9 +299,9 @@ export default {
                     border: 2px solid #ccc;
                     &::-webkit-scrollbar {display:none}
                     .drag-item {
-                        padding: 10px;
+                        // padding: 10px;
+                        // width: 355px;
                         margin: auto;
-                        width: 355px;
                         position: relative;
                         background: #f1f1f1;
                         border: 1px dashed #ccc;
@@ -300,10 +356,9 @@ export default {
             width: 400px;
             background: #f1f1f1;
             border-radius: 5px;
-            &::before{
+            .pseudoRow{
                 position: absolute;
                 content: "";
-                top: 15px;
                 left: -10px;
                 border: 10px solid #f1f1f1;
                 transform: rotateZ(45deg);

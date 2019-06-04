@@ -48,6 +48,7 @@ export default {
 </script>
 <style lang='less'>
     .formComponent{
+        padding: 5px;
         .el-form{
             width: 100%;
             .el-form-item{
@@ -60,7 +61,7 @@ export default {
             }
             .buttonBlock{
                 .el-form-item__content{
-                    margin-left: 0 !important;
+                    // margin-left: 0 !important;
                 }
             }
         }

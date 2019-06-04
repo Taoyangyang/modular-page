@@ -42,7 +42,7 @@ export default {
         }),
         componentsList: {
             get(){
-                return this.$store.state.componentsList
+                return this.$store.statecomponentsList
             },
             set(newVal){
                 this.$store.commit('updateData', {componentsList: newVal})
@@ -61,7 +61,7 @@ export default {
         ]),
         toggleDialog(e){
             let that = this;
-            that.dialogTop = -e.currentTarget.getBoundingClientRect().top+40;
+            that.dialogTop = -e.currentTarget.getBoundingClientRect().top+80;
             that.showDialog = true;
             that.updateData({showModal: true})
         },
@@ -75,6 +75,10 @@ export default {
 <style lang='less' scoped>
     .dialog{
         position: relative;
+        .el-button--text{
+            width: 100%;
+            text-align: center;
+        }
         .dialogBlock{
             position: absolute;
             top: 0;
@@ -93,7 +97,7 @@ export default {
                 }
                 .buttonBlock{
                     .el-form-item__content{
-                        margin-left: 0 !important;
+                        // margin-left: 0 !important;
                     }
                 }
             }

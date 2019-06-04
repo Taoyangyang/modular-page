@@ -86,6 +86,15 @@ export default {
 <style lang='less' scoped>
 .imageComponent{
     position: relative;
+    .imgBlock{
+        text-align: center;
+        .el-image{
+            width: 100%;
+            .el-image__error{
+                line-height: 120px;
+            }
+        }
+    }
     .eagleMapContainer {
         position: absolute;
         z-index: 200;
