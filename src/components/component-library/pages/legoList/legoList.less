@@ -1,0 +1,166 @@
+.legoList{
+    .tabsBlock{
+        margin-bottom: 10px;
+        padding: 0 10px;
+        border-bottom: 2px solid #E4E7ED;
+        .tabsTools{
+            .sortManage{
+                margin-left: 10px;
+            }
+        }
+    }
+    .searchBlock{
+        background: #eef1f6;
+    }
+    .listBock{
+        margin-top: 10px;
+        width: 100%;
+        overflow-y: auto;
+        .listItem{
+            display: inline-block;
+            margin-left: 10px;
+            margin-bottom: 10px;
+            width: calc(~"25% - 7.5px");
+            background: #F5F7FA;
+            &:nth-child(4n+1){
+                margin-left: 0;
+            }
+            &:hover{ cursor: pointer; }
+            .topImg{
+                position: relative;
+                .publishState{
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    padding: 0 5px;
+                    height: 18px;
+                    line-height: 18px;
+                    font-size:13px;
+                    color: #606266;
+                    background: white;
+                    border-radius: 3px;
+                    span{
+                        display: inline-block;
+                        margin-right: 5px;
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                    }
+                }
+                .timeInterval{
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 0 10px;
+                    font-size: 13px;
+                    color: white;
+                    background: rgba(0,0,0,.8);
+                }
+            }
+            .bottomInfo{
+                padding: 10px;
+                .nameAupdateTime{
+                    .overfloewEllipsis{
+                        height:22px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                    .resetStyle{ 
+                        margin-bottom: 8px; 
+                        height: 44px;
+                    }
+                    .name{
+                        width: 100%;
+                        // height:22px;
+                        line-height: 22px;
+                        font-size:15px;
+                        color: #303133;
+                    }
+                    .updateTime{
+                        margin-bottom: 10px;
+                        height:20px;
+                        line-height: 20px;
+                        font-size:12px;
+                        color: #606266;
+                    }
+                    .el-textarea{
+                        textarea{
+                            padding: 4px 15px;
+                        }
+                    }
+                }
+                .funBtns{
+                    &>.el-button{
+                        width: calc(~"25% - 7.5px");
+                        padding: 7px 0;
+                        text-align: center;
+                    }
+                    &>.el-dropdown{
+                        margin-left: 10px;
+                        width: calc(~"25% - 7.5px");
+                        .el-button{
+                            width: 100%;
+                        }
+                    } 
+                }
+            }
+        }
+    }
+    .previewModal{
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, .3);
+        z-index: 2;
+    }
+    .pushOfflineDialog{
+        .el-dialog .el-dialog__body{
+            padding: 10px 20px;
+        }
+
+    }
+    .sortDialog{
+        .sortContent{
+            max-height: 360px;
+            overflow-y: auto;
+            &::-webkit-scrollbar {/*滚动条整体样式*/
+                width: 8px;     /*高宽分别对应横竖滚动条的尺寸*/
+                height: 8px;
+            }
+            &::-webkit-scrollbar-thumb {
+                border-radius: 4px;
+                background-color: rgba(194,194,194,1);
+            }
+            .el-tag{
+                margin-right: 5px;
+                margin-bottom: 5px;
+                .handle{
+                    margin-left: 5px;
+                    color: #bbb;
+                    cursor: move;
+                }
+            }
+            .input-new-tag{
+                margin-top: 5px;
+            }
+        }
+    }
+    .addCopyDialog{
+        .addCopyContent{
+            label{
+                display: block;
+                margin: 8px 0;
+            }
+            .el-input{
+                width: 100%;
+            }
+            .el-select{
+                width: 100%;
+            }
+        }
+    }
+}

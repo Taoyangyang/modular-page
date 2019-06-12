@@ -17,6 +17,8 @@
                 <div title="拖动调整大小" id="move_tz"></div>
             </div>
         </div>
+        <!-- noEditor -->
+       <div v-if="noEditor" class="noEditor"></div>
     </div>
 </template>
 
@@ -34,8 +36,12 @@ export default {
         };
     },
     props: {
-        setData: { type: Object | Array },
-        cId    : { type: Number, }
+        setData : { type: Object | Array },
+        cId     : { type: Number },
+        noEditor: { 
+            type: Boolean,
+            default: false,
+        }
     },
     computed: {
         ...mapState({
@@ -43,7 +49,7 @@ export default {
         })
     },
     created() {
-        console.log(this.setData, "SETTING")
+        console.log(this.setData, "SETTING", this.noEditor)
     },
     mounted() {
         let that = this;
@@ -128,6 +134,15 @@ export default {
                 }
             }
         }
+    }
+    .noEditor{
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0);
+        z-index: 201;
     }
 }
 </style>

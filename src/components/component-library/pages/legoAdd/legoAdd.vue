@@ -1,42 +1,57 @@
 <template>
     <div class="index legoAdd">
         <div class="content flex_between">
+            <div class="btns">
+                <el-collapse v-model="activeNames">
+                    <el-collapse-item title="图像模块" name="imageModule">
+                        <div v-for="item in addCompBtns.imageModule" :key="item.name" class="funBtnItem" @click="addComponents(item.eventPayload.name, item.eventPayload.payLoad)">
+                            <img :src="item.img" width="24px">
+                            <p>{{item.name}}</p>
+                        </div>
+                    </el-collapse-item>
+                    <el-collapse-item title="功能模块" name="functionModule">
+                        <div v-for="item in addCompBtns.functionModule" :key="item.name" class="funBtnItem" @click="addComponents(item.eventPayload.name, item.eventPayload.payLoad)">
+                            <img :src="item.img" width="24px">
+                            <p>{{item.name}}</p>
+                        </div>
+                    </el-collapse-item>
+                </el-collapse>
+                <!-- <el-button @click="addComponents('inputComponent')">输入框</el-button>
+                <el-button @click="addComponents('selectComponent')">选择框</el-button>
+                <el-button @click="addComponents('gridComponent')">宫格</el-button>
+                <el-button @click="addComponents('buttonComponent')">按钮</el-button> -->
+            </div>
             <div class="showContent">
-                <div class="pageContent" ref="componentsDiv">
-                    <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
-                        <transition-group>
-                            <!-- <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @mouseenter="mouseEnter($event, index, item.componentName)"> -->
-                            <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event, index, item.componentName)">
-                                <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
-                            </div>
-                        </transition-group>
-                    </draggable>
+                <div class="pageContent">
+                    <div class="pageTopBlock">
+                        <img class="pageTopImg" src="~assets/images/lego/pageTop.jpg">
+                        <p class="title">标题</p>
+                    </div>
+                    <div class="componentsList" ref="componentsDiv">
+                        <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
+                            <transition-group>
+                                <!-- <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @mouseenter="mouseEnter($event, index, item.componentName)"> -->
+                                <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event, index, item.componentName)">
+                                    <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
+                                </div>
+                            </transition-group>
+                        </draggable>
+                    </div>
                     <!-- 弹框遮罩 -->
                     <div class="modal" v-if="showModal"></div>
                 </div>
-                <div v-if="showSetBtn && clickComIndex!=null" class="funBlock" :style="{top: settingPosit.top+'px', left: settingPosit.left+'px'}">
+                <div v-if="showSetBtn && clickComIndex!=null" class="funBlock" :style="{top: settingPosit.top-45+'px', left: settingPosit.left+40+'px'}">
                     <i class="icon el-icon-s-tools"></i>
                     <i class="icon el-icon-arrow-up" @click="componentSort('up')"></i>
                     <i class="icon el-icon-arrow-down" @click="componentSort('dowm')"></i>
                     <i class="icon el-icon-delete" @click="deleteComponent"></i>
                 </div>
-            </div>
-            <div class="btns">
-                <el-button @click="addComponents('inputComponent')">输入框</el-button>
-                <el-button @click="addComponents('selectComponent')">选择框</el-button>
-                <el-button @click="addComponents('carouselComponent')">轮播图</el-button>
-                <el-button @click="addComponents('imageComponent')">热区图片</el-button>
-                <el-button @click="addComponents('imageComponent', {singleImg: true})">单图模式</el-button>
-                <el-button @click="addComponents('videoComponent')">视频</el-button>
-                <el-button @click="addComponents('gridComponent')">宫格</el-button>
-                <el-button @click="addComponents('buttonComponent')">按钮</el-button>
-                <el-button @click="addComponents('formComponent')">Form表单</el-button>
-                <el-button @click="addComponents('dialogComponent')">弹窗表单</el-button>
+                <!-- 页面设置 -->
+                <pageSetting></pageSetting>
             </div>
         </div>
-        <el-button type="primary" @click="submitData">提交</el-button>
         <!-- 设置 -->
-        <div v-if="showSetBlock" class="settingBlock" :style="{top: setBlockTop+'px', left: settingPosit.left+60+'px'}" ref="settingBlock">
+        <div v-if="showSetBlock" class="settingBlock" :style="{top: setBlockTop+'px', left: settingPosit.left+410+'px'}" ref="settingBlock">
             <div class="pseudoRow" :style="{top: setRowTop+15+'px'}"></div>
             <component :is="currentComType+'Setting'" :showData="showData" :config="comConfig" @cancel="settingCancel" @confirm="settingConfirm"></component>
         </div>
@@ -47,46 +62,61 @@
 import draggable from "vuedraggable";
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
 // 组件
-import inputComponent from "./component-library/input.vue";
-import selectComponent from "./component-library/select.vue";
-import carouselComponent from "./component-library/carousel.vue";
-import imageComponent from "./component-library/image.vue";
-import videoComponent from "./component-library/video.vue";
-import gridComponent from "./component-library/grid.vue";
-import buttonComponent from "./component-library/button.vue";
-import formComponent from "./component-library/form.vue";
-import dialogComponent from "./component-library/dialog.vue";
+import inputComponent from "../../components/input.vue";
+import selectComponent from "../../components/select.vue";
+import carouselComponent from "../../components/carousel.vue";
+import imageComponent from "../../components/image.vue";
+import videoComponent from "../../components/video.vue";
+import gridComponent from "../../components/grid.vue";
+import buttonComponent from "../../components/button.vue";
+import formComponent from "../../components/form.vue";
+import dialogComponent from "../../components/dialog.vue";
 // 组件设置
-import inputSetting from "./component-library/component-settingDialog/inputSetting.vue";
-import imageSetting from "./component-library/component-settingDialog/imageSetting.vue";
-import carouselSetting from "./component-library/component-settingDialog/carouselSetting.vue";
-import selectSetting from "./component-library/component-settingDialog/selectSetting.vue";
-import videoSetting from "./component-library/component-settingDialog/videoSetting.vue";
-import gridSetting from "./component-library/component-settingDialog/gridSetting.vue";
-import buttonSetting from "./component-library/component-settingDialog/buttonSetting.vue";
-import formSetting from "./component-library/component-settingDialog/formSetting.vue";
-import dialogSetting from "./component-library/component-settingDialog/formSetting.vue";
+import pageSetting from "../../component-settingDialog/pageSetting.vue";
+
+import inputSetting from "../../component-settingDialog/inputSetting.vue";
+import imageSetting from "../../component-settingDialog/imageSetting.vue";
+import carouselSetting from "../../component-settingDialog/carouselSetting.vue";
+import selectSetting from "../../component-settingDialog/selectSetting.vue";
+import videoSetting from "../../component-settingDialog/videoSetting.vue";
+import gridSetting from "../../component-settingDialog/gridSetting.vue";
+import buttonSetting from "../../component-settingDialog/buttonSetting.vue";
+import formSetting from "../../component-settingDialog/formSetting.vue";
+import dialogSetting from "../../component-settingDialog/formSetting.vue";
 
 export default {
     name: "index",
     components: {
         draggable, inputComponent, selectComponent, carouselComponent, imageComponent, videoComponent, gridComponent, buttonComponent, formComponent, dialogComponent,
-        inputSetting, imageSetting, carouselSetting, selectSetting, videoSetting, gridSetting, buttonSetting, formSetting, dialogSetting
+        pageSetting, inputSetting, imageSetting, carouselSetting, selectSetting, videoSetting, gridSetting, buttonSetting, formSetting, dialogSetting
     },
     data() {
         return {
             enabled       : true,
+            activeNames   : ['imageModule','functionModule'],
             showSetBlock  : false,
             settingPosit  : {
                 top  : 0,
                 left : 0
             },
-            // clickComIndex : null,       //当前点击的组件下标
+            addCompBtns   : {
+                imageModule   :[
+                    {name: '单图热区', img: require('assets/images/lego/ic_hotspot.png'), eventPayload: {name: 'imageComponent', payLoad: {}}},
+                    {name: '单图', img: require('assets/images/lego/ic_pic.png'), eventPayload: {name: 'imageComponent', payLoad: {singleImg: true}}},
+                    {name: '轮播图', img: require('assets/images/lego/ic_carousel.png'), eventPayload: {name: 'carouselComponent', payLoad: {}}},
+                    {name: '视频', img: require('assets/images/lego/ic_video.png'), eventPayload: {name: 'videoComponent', payLoad: {}}},
+                ],
+                functionModule: [
+                    {name: 'Form表单', img: require('assets/images/lego/ic_form.png'), eventPayload: {name: 'formComponent', payLoad: {}}},
+                    {name: '弹窗表单', img: require('assets/images/lego/ic_popform.png'), eventPayload: {name: 'dialogComponent', payLoad: {}}},
+                ]
+            },
+            // clickComIndex : null,        //当前点击的组件下标
             currentComType: "",             //当前点击的组件类型；
             showData      : {},
             selecComponent: '',
             showSetBtn    : false,
-            initPageHight : 680,            //初始化显示高度为680
+            initPageHight : 680+65+90,      //初始化显示高度为680(加上top栏高度  页面的顶部图片高度)
             setBlockTop   : 0,              //设置框的相对top值
             setRowTop     : 0,              //设置框的箭头的相对top值
         };
@@ -218,10 +248,15 @@ export default {
         // 提交页面
         submitData(){
             let that =this;
-            console.log(that.componentsList)
             console.log(JSON.stringify(that.componentsList))
+            return new Promise((resolve, reject)=>{
+                if(that.componentsList.length){
+                    resolve(JSON.stringify(that.componentsList))
+                }else{
+                    reject({code: 100, msg: "未添加组件"})
+                }
+            })
         },
-
         // 拖动的事件等等=======================================================>
         datadragStart(e) {
             let that = this;
@@ -275,29 +310,48 @@ export default {
 </script>
 
 <style lang="less" scoped>
-    .legoAdd{
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 10;
-        background: white
-    }
     .index{
         // position: relative;
         width: 100%;
         overflow-y: auto;
         .content{
+            height: 100%;
             .showContent{
                 position: relative;
+                width: calc(~"100% - 250px");
+                background: #EFF1F6;
                 .pageContent{
+                    position: relative;
+                    margin: 40px 0 0 40px;
                     padding: 5px;
                     width: 375px;
-                    height: 667px;
-                    overflow-y: auto;
-                    border: 2px solid #ccc;
-                    &::-webkit-scrollbar {display:none}
+                    box-shadow:0px 2px 20px 0px rgba(0,0,0,0.1);
+                    background: white;
+                    .pageTopBlock{
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 65px;
+                        position: absolute;
+                        z-index: 20;
+                        .pageTopImg{
+                            width: 100%;
+                            height: 65px;
+                        }
+                        p{
+                            position: absolute;
+                            left: 0;
+                            bottom: 15px;
+                            width: 100%;
+                            text-align: center;
+                        }
+                    }
+                    .componentsList{
+                        margin-top: 65px;
+                        height: 667px;
+                        overflow-y: auto;
+                        &::-webkit-scrollbar {display:none}
+                    }
                     .drag-item {
                         // padding: 10px;
                         // width: 355px;
@@ -316,7 +370,7 @@ export default {
                         right: 0;
                         bottom: 0;
                         background: rgba(0,0,0,.2);
-                        z-index: 1;
+                        z-index: 3;
                     }
                 }
                 .funBlock{
@@ -342,10 +396,24 @@ export default {
                 }
             }
             .btns{
-                width: 450px;
+                padding-left: 10px;
+                margin-top: 10px;
+                height: calc(~"100% - 10px");
+                width: 240px;
                 text-align: left;
+                background: white;
                 /deep/ .el-button{
                     margin: 10px;
+                }
+                .funBtnItem{
+                    display: inline-block;
+                    padding: 20px;
+                    width: calc(~"50% - 44px");
+                    text-align: center;
+                    cursor: pointer;
+                    .icon{
+                        font-size: 20px;
+                    }
                 }
             }
         }
@@ -354,14 +422,17 @@ export default {
             position: absolute;
             padding: 10px;
             width: 400px;
-            background: #f1f1f1;
+            background: #fff;
             border-radius: 5px;
+            box-shadow: 0 0 5px #a9a9a9;
+            z-index: 10;
             .pseudoRow{
                 position: absolute;
                 content: "";
                 left: -10px;
-                border: 10px solid #f1f1f1;
+                border: 10px solid #fff;
                 transform: rotateZ(45deg);
+                box-shadow: -2px 2px 3px #a6a6a6;
             }
         }
     }

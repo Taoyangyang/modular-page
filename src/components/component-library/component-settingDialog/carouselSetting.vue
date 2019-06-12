@@ -24,11 +24,11 @@
             <div class="showDataBlock">
                 <div class="showItem flex_start_v" v-for="(item,index) in carouselFormItem.carouselImages" :key="index" @click="upLoadIndex=index">
                     <!-- <img :src="item.imgUrl" width="40" height="40" @click="chooseImg(index)"> -->
-                    <el-upload class="avatar-uploader" action="" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
+                    <el-oss-upload class="avatar-uploader" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
                         <img v-if="item.imgUrl" :src="item.imgUrl+'?x-oss-process=image/resize,m_fixed,h_178,w_178'" width="60" height="60" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         <div slot="view"></div>
-                    </el-upload>
+                    </el-oss-upload>
                     <div class="inputHint">
                         <p>跳转链接：<input type="text" v-model="item.linkUrl" placeholder="请输入跳转连接"></p>
                         <p v-if="carouselFormItem.leftSide">轮播标题：<input type="text" v-model="item.itemTitle" placeholder="请输入轮播标题"></p>
@@ -36,6 +36,11 @@
                     <i class="delIcon el-icon-circle-close" @click="delCarouselItem(index)"></i>
                 </div>
             </div>
+            <!-- <el-oss-upload class="avatar-uploader" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
+                <img v-if="0" :src="floorPlanPath+'?x-oss-process=image/resize,m_fixed,h_178,w_178' " class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                <div slot="view"></div>
+            </el-oss-upload> -->
         </el-form>
         <div slot="footer" class="dialog-footer">
             <el-button @click="cancel">关 闭</el-button>

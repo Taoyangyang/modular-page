@@ -10,6 +10,7 @@
                 <el-button size="medium" :style="{background: setData.btnColor, color: 'white'}">提交</el-button>
             </el-form-item>
         </el-form>
+        <img v-else src="~assets/images/qrcode.png" width="100%" height="150">
     </div>
 </template>
 

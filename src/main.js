@@ -19,6 +19,11 @@ Vue.config.productionTip = false
 import './directive'
 //引入property 方法
 import './libs/utils';
+// 字体
+import './assets/iconfont/iconfont.css'
+// 剪贴板
+import VueClipboard from 'vue-clipboard2'
+Vue.use(VueClipboard)
 
 // debug统计
 import * as fundebug from "fundebug-javascript";

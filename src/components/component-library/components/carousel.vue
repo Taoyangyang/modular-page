@@ -1,25 +1,28 @@
 <template>
-    <div v-if="setData.carouselImages" class="carousel">
-        <div v-if="setData.leftSide" class="tags">
-            <el-tag v-for="(item,index) in setData.carouselImages" :key="item.id" type="warning" :class="['tabItem_'+index]"
-            :ref="[index==tabIndex?'tabItem_active':'tabItem']" :effect="index==tabIndex ? 'dark':'plain'">
-                {{item.itemTitle}}
-            </el-tag>
+    <div>
+        <div v-if="setData.carouselImages" class="carousel">
+            <div v-if="setData.leftSide" class="tags">
+                <el-tag v-for="(item,index) in setData.carouselImages" :key="item.id" type="warning" :class="['tabItem_'+index]"
+                :ref="[index==tabIndex?'tabItem_active':'tabItem']" :effect="index==tabIndex ? 'dark':'plain'">
+                    {{item.itemTitle}}
+                </el-tag>
+            </div>
+            <el-carousel :height="(setData.carouselHeight||'150')+'px'" :autoplay="setData.autoplay" :interval="setData.interval" @change="carouselChange" 
+            trigger="click" :style="{padding: setData.leftSide ? '5px 10px':'0'}" >
+                <el-carousel-item v-for="item in setData.carouselImages" :key="item.id">
+                    <el-image :src="item.imgUrl" fit="contain" style="width:100%; height:100%"></el-image>
+                </el-carousel-item>
+            </el-carousel>
+            <!-- <swiper v-if="updatedToggle" :options="swiperOption" ref="mySwiper">
+                <swiper-slide v-for="item in setData.carouselImages" :key="item.id" 
+                    :style="{height: setData.carouselHeight+'px', width: setData.leftSide?'85%':'100%'}"
+                >
+                    <img :src="item.imgUrl" fit="contain" style="width:100%; height:100%" />
+                </swiper-slide>
+                <div class="swiper-pagination" slot="pagination"></div>
+            </swiper> -->
         </div>
-        <el-carousel :height="(setData.carouselHeight||'150')+'px'" :autoplay="setData.autoplay" :interval="setData.interval" @change="carouselChange" 
-        trigger="click" :style="{padding: setData.leftSide ? '5px 10px':'0'}" >
-            <el-carousel-item v-for="item in setData.carouselImages" :key="item.id">
-                <el-image :src="item.imgUrl" fit="contain" style="width:100%; height:100%"></el-image>
-            </el-carousel-item>
-        </el-carousel>
-        <!-- <swiper v-if="updatedToggle" :options="swiperOption" ref="mySwiper">
-            <swiper-slide v-for="item in setData.carouselImages" :key="item.id" 
-                :style="{height: setData.carouselHeight+'px', width: setData.leftSide?'85%':'100%'}"
-            >
-                <img :src="item.imgUrl" fit="contain" style="width:100%; height:100%" />
-            </swiper-slide>
-            <div class="swiper-pagination" slot="pagination"></div>
-        </swiper> -->
+        <img v-else src="~assets/images/qrcode.png" width="100%" height="150">
     </div>
 </template>
 
@@ -100,8 +103,8 @@ export default {
 <style lang='less' scoped>
     .carousel {
         .tags{
-            margin: 5px 10px;
-            margin-bottom: 0;
+            padding-top: 5px;
+            margin: 0 10px;
             height: 32px;
             width: calc(~"100% - 20px");
             white-space: nowrap;
@@ -121,10 +124,15 @@ export default {
             .el-carousel__item:nth-child(2n + 1) {
                 background-color: #d3dce6;
             }
-            .el-carousel__indicators li button{
-                width: 4px;
-                height: 4px;
-                border-radius: 50%;
+            .el-carousel__indicators {
+                li button{
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 50%;
+                }
+                .is-active button{
+                    background: #409EFF
+                }
             }
         }
     }

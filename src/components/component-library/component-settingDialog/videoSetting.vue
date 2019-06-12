@@ -4,12 +4,12 @@
             <el-form-item label="视频路径" label-width="120px">
                 <el-input v-model="videoFormDatas.videoUrl" size="small" autocomplete="on"></el-input>
             </el-form-item>
-            <el-form-item label="播放器宽度" label-width="120px">
+            <!-- <el-form-item label="播放器宽度" label-width="120px">
                 <el-input v-model="videoFormDatas.videoWidth" size="small" autocomplete="off"></el-input>
             </el-form-item>
             <el-form-item label="播放器高度" label-width="120px">
                 <el-input v-model="videoFormDatas.videoHeight" size="small" autocomplete="off"></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="自动播放" label-width="120px">
                 <el-col :span="8">
                     <el-switch :disabled="videoFormDatas.preload" v-model="videoFormDatas.autoplay"></el-switch>
@@ -47,8 +47,8 @@ export default {
         return {
             videoFormDatas : {
                 videoUrl     : Math.random()>=0.5 ? "https://www.runoob.com/try/demo_source/movie.mp4":"https://www.runoob.com/try/demo_source/mov_bbb.ogg",
-                videoWidth   : "350",
-                videoHeight  : "150",
+                videoWidth   : "100%",
+                videoHeight  : "auto",
                 autoplay     : false,
                 preload      : false,
                 loop         : false,

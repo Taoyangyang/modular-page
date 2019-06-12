@@ -4,11 +4,11 @@
         <el-button v-if="!config.singleImg" type="primary" icon="el-icon-circle-plus" size="medium" @click="addHotSpots">添加热区</el-button>
         <div class="showItem flex_start_v">
             <!-- <img :src="showData.imageUrl || imageUrl" width="40" height="40" @click="chooseImg"> -->
-            <el-upload class="avatar-uploader" action="" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
+            <el-oss-upload class="avatar-uploader" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
                 <img v-if="imageUrl" :src="imageUrl+'?x-oss-process=image/resize,m_fixed,h_178,w_178'" width="60" height="60" class="avatar">
                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 <div slot="view"></div>
-            </el-upload>
+            </el-oss-upload>
             <div class="imgLinkUrl">
                 <p>&nbsp;&nbsp;跳转链接：</p>
                 <input type="text" :disabled="!config.singleImg" v-model="imageLinkUrl" placeholder="请输入链接">

@@ -2,7 +2,7 @@
     <div class='dialog'>
         <el-button type="text" size="medium" @click="toggleDialog($event)">弹窗</el-button>
 
-        <el-dialog class="dialogBlock" title="表单提交" :visible.sync="showDialog" width="100%" 
+        <el-dialog class="dialogBlock" title="表单提交" :visible.sync="showDialog" width="95%" 
             :modal="false" :close-on-click-modal="false" @close="closeDialog" :style="{top:dialogTop+'px'}"
         >
             <el-form v-if="!IsEmptyObj(setData)" ref="form" label-width="70px">
@@ -42,7 +42,7 @@ export default {
         }),
         componentsList: {
             get(){
-                return this.$store.statecomponentsList
+                return this.$store.state.componentsList
             },
             set(newVal){
                 this.$store.commit('updateData', {componentsList: newVal})
