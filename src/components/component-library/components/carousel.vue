@@ -72,7 +72,7 @@ export default {
     },
     computed: {
         ...mapState({
-            pageSetData: state => state.lego.pageSetData,
+            pageSetData: state => state.pageSetData,
         }),
         // swiper() {
         //     return this.$refs.mySwiper.swiper

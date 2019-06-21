@@ -111,8 +111,8 @@ export default {
     },
     computed: {
         ...mapState({
-            componentsList: state => state.lego.componentsList,
-            clickComIndex : state => state.lego.clickComIndex,	
+            componentsList: state => state.componentsList,
+            clickComIndex : state => state.clickComIndex,	
         })
     },
     created() {},

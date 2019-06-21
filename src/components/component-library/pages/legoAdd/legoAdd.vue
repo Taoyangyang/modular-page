@@ -2,7 +2,7 @@
  * @Author: TaoYe 
  * @Date: 2019-06-02 14:51:48 
  * @Last Modified by: TaoYe
- * @Last Modified time: 2019-06-21 15:31:09
+ * @Last Modified time: 2019-06-21 17:21:21
  */
 <template>
     <div class="index legoAdd">
@@ -69,6 +69,7 @@
 <script>
 import draggable from "vuedraggable";
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
+import * as testData from "../../testData"
 // 组件
 import inputComponent from "../../components/input.vue";
 import selectComponent from "../../components/select.vue";
@@ -138,13 +139,13 @@ export default {
     },
     computed: {
         ...mapState({
-            pageSetData   : state => state.lego.pageSetData,	
-            clickComIndex : state => state.lego.clickComIndex,	
-            showModal     : state => state.lego.showModal,
+            pageSetData   : state => state.pageSetData,	
+            clickComIndex : state => state.clickComIndex,	
+            showModal     : state => state.showModal,
         }),
         componentsList: {
             get(){
-                return this.$store.state.lego.componentsList
+                return this.$store.state.componentsList
             },
             set(newVal){
                 this.$store.commit('updateData', {componentsList: newVal})
@@ -200,7 +201,30 @@ export default {
                         bgColor    : result.backgroundColor,
                     } })
                 }
-            }).catch(err=>{})
+            }).catch(err=>{
+                // ==============================
+                let result = testData.detailData;
+                try {
+                    that.componentsList = result.content ? JSON.parse(result.content):[];
+                } catch (error) {
+                    console.warn("JSON 数据格式有误！")
+                    that.componentsList = result.content ? eval ("("+ result.content +")"):[];
+                }
+                // 数据筛选 避免无效数据
+                that.componentsList = that.componentsList.filter(item=>item.componentName);
+
+                // 页面设置的数据
+                that.updateData({ pageSetData: {
+                    id         : result.id,
+                    shareTitle : result.title,
+                    desc       : result.description,
+                    dynamicTags: result.keyWords ? result.keyWords.split(','):[],
+                    shareImg   : result.shareImageUrl,
+                    absoluteUrl: result.shareImagePath,
+                    bgColor    : result.backgroundColor,
+                } })
+                // ==============================
+            })
         },
         // 添加组件
         addComponents(cName, config={}){

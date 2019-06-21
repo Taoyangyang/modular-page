@@ -5,6 +5,7 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+    { path:'*', redirect: '/lego_list' }, 
     { 
         path: '/lego_list',
         component: resolve => require(['@/components/component-library/pages/legoList/legoList.vue'], resolve),

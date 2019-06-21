@@ -54,11 +54,11 @@ export default {
     },
     computed: {
         ...mapState({
-            componentsList: state => state.lego.componentsList,
+            componentsList: state => state.componentsList,
         }),
         isImgUpload: {
             get(){
-                return this.$store.state.lego.isImgUpload
+                return this.$store.state.isImgUpload
             },
             set(newVal){
                 this.$store.commit('updateData', {isImgUpload: newVal})

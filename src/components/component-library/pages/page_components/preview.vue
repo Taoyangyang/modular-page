@@ -58,8 +58,8 @@ export default {
     },
     computed: {
         ...mapState({
-            pageSetData : state => state.lego.pageSetData,
-            showModal   : state => state.lego.showModal,
+            pageSetData : state => state.pageSetData,
+            showModal   : state => state.showModal,
         }),
         topTitleStyle(){
             let that = this;

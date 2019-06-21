@@ -69,7 +69,7 @@ export default {
     },
     computed: {
         ...mapState({
-            pageSetData: state => state.lego.pageSetData
+            pageSetData: state => state.pageSetData
         })
     },
     created() {

@@ -73,7 +73,7 @@ export default {
     computed: {
         pageSetData: {
             get(){
-                return this.$store.state.lego.pageSetData
+                return this.$store.state.pageSetData
             },
             set(newVal){
                 this.$store.commit('updateData', {pageSetData: newVal})

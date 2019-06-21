@@ -2,7 +2,7 @@
  * @Author: TaoYe 
  * @Date: 2019-06-03 11:52:37 
  * @Last Modified by: TaoYe
- * @Last Modified time: 2019-06-21 14:55:48
+ * @Last Modified time: 2019-06-21 16:54:46
  */
 
 <template>
@@ -152,7 +152,6 @@
 
 <script>
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
-import '@/assets/less/list-page.less';
 import draggable from "vuedraggable";
 
 import publishverify from "../../publishVerify";
@@ -160,6 +159,8 @@ import publishOffline from "../page_components/publishOffline";
 import preview from "../page_components/preview";
 import channelLink from "../page_components/channelLink";
 import pageClassify from "../page_components/pageClassify";
+
+import * as testData from "../../testData"
 
 export default {
     components: {},
@@ -226,7 +227,7 @@ export default {
     components: { draggable, publishOffline, preview, channelLink, pageClassify },
     computed: {
         ...mapState({
-            showModal : state => state.lego.showModal,
+            showModal : state => state.showModal,
         }),
     },
     created() {
@@ -260,10 +261,13 @@ export default {
         // 获取列表数据
         getListData(){
             let that = this;
+            // =======================
+            that.listData = testData.listData;
+            return false;
+            // =======================
             let searchTime= that.formData.time;
             let beginDate = searchTime && searchTime[0] ? that.formatDate(new Date(searchTime[0]), "yyyy-MM-dd"):'', 
                 endDate   = searchTime && searchTime[1] ? that.formatDate(new Date(searchTime[1]), "yyyy-MM-dd"):'';
-
             that.axios.post('/v2/activity/diy/page', {
                 name      : that.formData.name, 
                 beginDate : beginDate, 
@@ -404,6 +408,7 @@ export default {
         // 预览
         preview(item){
             let that = this;
+            // that.componentsList = eval ("("+ item.content +")");
             that.componentsList = eval ("("+ item.content +")");
             that.updateData({ showModal: false });
             that.showPreview = true;

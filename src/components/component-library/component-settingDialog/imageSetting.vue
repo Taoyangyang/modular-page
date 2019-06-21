@@ -63,13 +63,13 @@ export default {
     },
     computed: {
         ...mapState({
-            componentsList: state => state.lego.componentsList,
-            clickComIndex : state => state.lego.clickComIndex,	
-            isImgUpload   : state => state.lego.isImgUpload,	
+            componentsList: state => state.componentsList,
+            clickComIndex : state => state.clickComIndex,	
+            isImgUpload   : state => state.isImgUpload,	
         }),
         // isImgUpload: {
         //     get(){
-        //         return this.$store.state.lego.isImgUpload
+        //         return this.$store.state.isImgUpload
         //     },
         //     set(newVal){
         //         this.$store.commit('updateData', {isImgUpload: newVal})

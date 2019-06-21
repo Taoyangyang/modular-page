@@ -50,12 +50,12 @@ export default {
     },
     computed: {
         ...mapState({
-            clickComIndex : state => state.lego.clickComIndex,	
-            showModal     : state => state.lego.showModal,
+            clickComIndex : state => state.clickComIndex,	
+            showModal     : state => state.showModal,
         }),
         componentsList: {
             get(){
-                return this.$store.state.lego.componentsList
+                return this.$store.state.componentsList
             },
             set(newVal){
                 this.$store.commit('updateData', {componentsList: newVal})

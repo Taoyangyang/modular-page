@@ -2,7 +2,7 @@
  * @Author: TaoYe 
  * @Date: 2019-06-02 14:53:13 
  * @Last Modified by: TaoYe
- * @Last Modified time: 2019-06-20 17:14:04
+ * @Last Modified time: 2019-06-21 16:58:32
  */
 <template>
     <div class='legoBackup'>
@@ -61,6 +61,10 @@ export default {
         // 获取备份列表
         getBackupList(){
             let that = this;
+            // ========================
+            that.backupData = testData.backupData;
+            return false;
+            // ========================
             return new Promise(resolve =>{
                 that.axios.get('/v2/activity/backup/listByDiyId', {
                     params: { diyId: that.pageId }
