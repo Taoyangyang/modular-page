@@ -1,3 +1,9 @@
+/*
+ * @Author: TaoYe 
+ * @Date: 2019-06-02 14:51:48 
+ * @Last Modified by: TaoYe
+ * @Last Modified time: 2019-06-21 15:31:09
+ */
 <template>
     <div class="index legoAdd">
         <div class="content flex_between">
@@ -22,17 +28,17 @@
                 <el-button @click="addComponents('buttonComponent')">按钮</el-button> -->
             </div>
             <div class="showContent">
-                <div class="pageContent">
+                <div class="pageContent" :style="{background: pageSetData.bgColor}">
                     <div class="pageTopBlock">
                         <img class="pageTopImg" src="~assets/images/lego/pageTop.jpg">
                         <p class="title">标题</p>
                     </div>
-                    <div class="componentsList" ref="componentsDiv">
+                    <div class="componentsList" :style="{overflowY: showModal?'hidden':'auto'}" ref="componentsDiv">
                         <draggable v-model="componentsList" @start="datadragStart" @update="datadragUpdate" @end="datadragEnd" :disabled="!enabled" :move="datadragMove" :options="{animation:500}" >
                             <transition-group>
                                 <!-- <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @mouseenter="mouseEnter($event, index, item.componentName)"> -->
-                                <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" @click="showSetting($event, index, item.componentName)">
-                                    <component :is="item.componentName" :setData="item.data" :cId="item.id"></component>
+                                <div v-for="(item,index) in componentsList" :key="item.id" class="drag-item" :ref="'drag-item-'+item.id" @click="showSetting(index, item.id, item.componentName)">
+                                    <component :is="item.componentName" :setData="item.data" :config="item.config" :cId="item.id"></component>
                                 </div>
                             </transition-group>
                         </draggable>
@@ -40,7 +46,7 @@
                     <!-- 弹框遮罩 -->
                     <div class="modal" v-if="showModal"></div>
                 </div>
-                <div v-if="showSetBtn && clickComIndex!=null" class="funBlock" :style="{top: settingPosit.top-45+'px', left: settingPosit.left+40+'px'}">
+                <div v-if="showSetBtn && clickComIndex!=null" class="funBlock" :style="{top: settingPosit.top-45+'px', left: settingPosit.left+30+'px'}">
                     <i class="icon el-icon-s-tools"></i>
                     <i class="icon el-icon-arrow-up" @click="componentSort('up')"></i>
                     <i class="icon el-icon-arrow-down" @click="componentSort('dowm')"></i>
@@ -51,9 +57,11 @@
             </div>
         </div>
         <!-- 设置 -->
-        <div v-if="showSetBlock" class="settingBlock" :style="{top: setBlockTop+'px', left: settingPosit.left+410+'px'}" ref="settingBlock">
-            <div class="pseudoRow" :style="{top: setRowTop+15+'px'}"></div>
-            <component :is="currentComType+'Setting'" :showData="showData" :config="comConfig" @cancel="settingCancel" @confirm="settingConfirm"></component>
+        <div v-if="showSetBlock" class="settingBlock" :style="{top: setBlockTop+'px', left: settingPosit.left+395+'px'}" ref="settingBlock">
+            <div class="pseudoRow" :style="{top: setRowTop+20+'px'}"></div>
+            <component :is="currentComType+'Setting'" :showData="showData" :config="comConfig" @cancel="settingCancel" @confirm="settingConfirm" 
+                @setPosition="modifySetPosition(settingPosit.top)">
+            </component>
         </div>
     </div>
 </template>
@@ -97,18 +105,20 @@ export default {
             showSetBlock  : false,
             settingPosit  : {
                 top  : 0,
-                left : 0
+                left : 0,
+                timeStamp: 0
             },
             addCompBtns   : {
                 imageModule   :[
                     {name: '单图热区', img: require('assets/images/lego/ic_hotspot.png'), eventPayload: {name: 'imageComponent', payLoad: {}}},
                     {name: '单图', img: require('assets/images/lego/ic_pic.png'), eventPayload: {name: 'imageComponent', payLoad: {singleImg: true}}},
                     {name: '轮播图', img: require('assets/images/lego/ic_carousel.png'), eventPayload: {name: 'carouselComponent', payLoad: {}}},
+                    {name: '标签轮播', img: require('assets/images/lego/ic_tabs.png'), eventPayload: {name: 'carouselComponent', payLoad: {hasTitle: true}}},
                     {name: '视频', img: require('assets/images/lego/ic_video.png'), eventPayload: {name: 'videoComponent', payLoad: {}}},
                 ],
                 functionModule: [
                     {name: 'Form表单', img: require('assets/images/lego/ic_form.png'), eventPayload: {name: 'formComponent', payLoad: {}}},
-                    {name: '弹窗表单', img: require('assets/images/lego/ic_popform.png'), eventPayload: {name: 'dialogComponent', payLoad: {}}},
+                    {name: '弹窗表单', img: require('assets/images/lego/ic_popform.png'), eventPayload: {name: 'dialogComponent', payLoad: {dialogForm: true}}},
                 ]
             },
             // clickComIndex : null,        //当前点击的组件下标
@@ -119,16 +129,22 @@ export default {
             initPageHight : 680+65+90,      //初始化显示高度为680(加上top栏高度  页面的顶部图片高度)
             setBlockTop   : 0,              //设置框的相对top值
             setRowTop     : 0,              //设置框的箭头的相对top值
+            showSetCompet : "",             //显示设置的组件块
+            pageDiyId     : "",
+            pageId        : "",             //页面的id
+            pageName      : "",             //页面名称
+            pageSort      : [],             //页面分类
         };
     },
     computed: {
         ...mapState({
-            clickComIndex : state => state.clickComIndex,	
-            showModal     : state => state.showModal,
+            pageSetData   : state => state.lego.pageSetData,	
+            clickComIndex : state => state.lego.clickComIndex,	
+            showModal     : state => state.lego.showModal,
         }),
         componentsList: {
             get(){
-                return this.$store.state.componentsList
+                return this.$store.state.lego.componentsList
             },
             set(newVal){
                 this.$store.commit('updateData', {componentsList: newVal})
@@ -143,14 +159,52 @@ export default {
             event.preventDefault();
             event.stopPropagation();
         };
+
+        that.pageId   = that.$route.query.id || '';
+        that.pageDiyId= that.$route.query.diyId || '';
+        that.pageName = that.$route.query.pageName || '';
+        that.pageSort = that.$route.query.sort ? that.$route.query.sort.split(',') : [];
+        console.log(that.pageName, that.pageSort, that.pageId)
+
+        that.pageId && that.getComponentsDataById(that.pageId);
     },
     methods: {
         ...mapMutations([
             'updateData'
         ]),
+        // 获取回显数据
+        getComponentsDataById(id){
+            let that = this;
+            that.componentsList = [];
+            that.axios.get(`/v2/activity/diy/${id}/detail`).then(res=>{
+                console.log(res, "0-0")
+                if(res.data && res.data.ret==0){
+                    let result = res.data.result;
+                    try {
+                        that.componentsList = result.content ? JSON.parse(result.content):[];
+                    } catch (error) {
+                        console.warn("JSON 数据格式有误！")
+                        that.componentsList = result.content ? eval ("("+ result.content +")"):[];
+                    }
+                    // 数据筛选 避免无效数据
+                    that.componentsList = that.componentsList.filter(item=>item.componentName);
+
+                    // 页面设置的数据
+                    that.updateData({ pageSetData: {
+                        id         : result.id,
+                        shareTitle : result.title,
+                        desc       : result.description,
+                        dynamicTags: result.keyWords ? result.keyWords.split(','):[],
+                        shareImg   : result.shareImageUrl,
+                        absoluteUrl: result.shareImagePath,
+                        bgColor    : result.backgroundColor,
+                    } })
+                }
+            }).catch(err=>{})
+        },
         // 添加组件
         addComponents(cName, config={}){
-            let that =this;
+            let that = this;
             //计算动态的id值
             let componentsLen = that.componentsList.length;
             let dynamicID = componentsLen ? that.componentsList.reduce((item1, item2) => (item1.id > item2.id ? item1 : item2)).id+1 : 1;
@@ -161,28 +215,42 @@ export default {
                 data   : {},
                 config : config
             })
-            that.updateData({componentsList: that.componentsList})
+            that.updateData({componentsList: that.componentsList});
+
+            // 显示最新添加的模块
+            that.$nextTick(()=>{
+                let newComponentEle = that.$refs['drag-item-'+dynamicID][0];
+                newComponentEle.scrollIntoView({ 
+                    // behavior: 'smooth',
+                    block   : 'end'
+                })
+                setTimeout(()=>{
+                    var event = new MouseEvent("click");
+                    newComponentEle.dispatchEvent(event); 
+                }, 100)
+            })
         },
         // 展示设置框
-        showSetting(e, index, cName){
+        showSetting(index, cid, cName){
             let that = this;
             if(index!=that.clickComIndex || !that.showSetBlock){
                 that.showSetBlock   = false;
                 that.$nextTick(()=>{
                     that.showSetBlock = true
                 })
-                // setTimeout(()=>{that.showSetBlock = true}, 50)
             }
-            let elPositionInfo = e.currentTarget.getBoundingClientRect();
+            that.showSetCompet = that.$refs['drag-item-'+cid][0];
+            let elPositionInfo = that.showSetCompet.getBoundingClientRect();
             that.updateData({clickComIndex: index})
             
-            that.$set(that.settingPosit, 'top', elPositionInfo.top )
+            that.$set(that.settingPosit, 'top', elPositionInfo.top<=160 ? 160 : elPositionInfo.top )
             that.$set(that.settingPosit, 'left', elPositionInfo.width+20);
+            that.$set(that.settingPosit, 'timeStamp', new Date().getTime());
 
-            that.showSetBtn     = true;
             that.currentComType = cName.split('Component')[0];
             that.showData       = that.componentsList[that.clickComIndex]['data'];
             that.comConfig      = that.componentsList[that.clickComIndex]['config'];
+            that.showSetBtn     = true;
         },
         // 取消设置
         settingCancel(){
@@ -211,6 +279,7 @@ export default {
             }).then(()=>{
                 that.componentsList.splice(that.clickComIndex, 1)
                 that.updateData({
+                    showModal     : false,
                     clickComIndex : null,
                     componentsList: that.componentsList
                 })
@@ -230,25 +299,10 @@ export default {
             }
             that.showSetBlock = false;
         },
-        // 鼠标进入
-        // mouseEnter(e, index, componentName){
-        //     let that = this;
-        //     that.showSetBtn = true;
-        //     if(that.clickComIndex!=index) that.showSetBlock = false;
-
-        //     that.updateData({ clickComIndex : index, })
-
-        //     that.selecComponent = componentName;
-        //     let elPositionInfo = e.currentTarget.getBoundingClientRect();
-            
-        //     that.$set(that.settingPosit, 'top', elPositionInfo.top - 110)
-        //     that.$set(that.settingPosit, 'left', elPositionInfo.width+40);
-            
-        // },
         // 提交页面
         submitData(){
             let that =this;
-            console.log(JSON.stringify(that.componentsList))
+            console.log(that.componentsList)
             return new Promise((resolve, reject)=>{
                 if(that.componentsList.length){
                     resolve(JSON.stringify(that.componentsList))
@@ -260,180 +314,89 @@ export default {
         // 拖动的事件等等=======================================================>
         datadragStart(e) {
             let that = this;
-            // console.log(e, "拖动开始");
             that.updateData({clickComIndex: null})
             that.showSetBlock = false;
         },
         datadragUpdate(e) {
-            // console.log(e, "拖动更新");
             e.preventDefault();
-            // console.log(`拖动前的索引 : ${e.oldIndex}, 拖动后的索引 : ${e.newIndex}`);
-            // console.log(this.componentsList);
         },
         datadragEnd(e) {
             // console.log(e, "拖动结束");
         },
         datadragMove(e, originalEve) {
-            // console.log(e, originalEve, "拖动移动");
-            // console.log(`拖动前的索引 : ${e.draggedContext.index}, 拖动后的索引 : ${e.draggedContext.futureIndex}, 拖拽前-上次数据：`, e.relatedContext.list);
             return (e.draggedContext.element.text!=='Gold（不可拖动元素）');
         },
         // div中内容滚动检测
         componentDivScroll(e){
             let that = this;
-            that.settingCancel();
+            if(!that.showSetCompet) return false;
+
+            let elPositionInfo = that.showSetCompet.getBoundingClientRect();
+            that.$set(that.settingPosit, 'top', elPositionInfo.top<=160 ? 160 : elPositionInfo.top )
+
+
+            let contentHeight = e.target.scrollHeight;
+            let viewHeight    = e.target.clientHeight;
+            let scrollTop     = e.target.scrollTop;
+
+            let eleHeight     = elPositionInfo.height;
+            let eleOffsetTop  = that.showSetCompet.offsetTop;
+
+            let AMEND_TOP = 30 + 65;    // 顶部消失的修正值
+            let AMEND_BOTTOM = -20;      // 底部消失的修正值
+            let topCritical    = scrollTop > (eleHeight + eleOffsetTop - AMEND_TOP);          // 顶部达到临界
+            let bottomCritical = eleOffsetTop > (scrollTop + viewHeight - AMEND_BOTTOM);      // 底部达到临界
+            (topCritical || bottomCritical) && that.settingCancel();
+        },
+        modifySetPosition(settingTop){
+            let that = this;
+            that.$nextTick(()=>{
+                setTimeout(()=>{
+                    let settingEle = that.$refs.settingBlock;
+                    if(!settingEle) return false;
+
+                    let setHeight = settingEle.getBoundingClientRect().height;
+                    if(settingTop+setHeight > that.initPageHight){
+                        that.setBlockTop = that.initPageHight-setHeight;
+                        that.setRowTop   = setHeight-(that.initPageHight-settingTop);
+                    }else{
+                        that.setBlockTop = settingTop<0 ? 0: settingTop;
+                        that.setRowTop   = 0;
+                    }
+                }, 20)
+            })
         }
     },
+    // 离开
+    // beforeRouteLeave(to, from, next){
+    //     let that = this;
+    //     that.$confirm('离开后数据将清空', '提示', {
+    //         confirmButtonText: '确定',
+    //         cancelButtonText : '取消',
+    //         type : 'warning'
+    //     }).then(()=>{
+    //         that.$parent.shwoBackup();
+    //         // 清除遮罩
+    //         that.$store.commit('updateData', {showModal: false});
+    //         next()
+    //     })
+    // },
     watch: {
         showModal(newVal){
             this.$nextTick(()=>{
                 this.showSetBtn = this.showSetBlock = newVal
             })
         },
-        'settingPosit.top'(newVal){
-            let that = this;
-            that.$nextTick(()=>{
-                setTimeout(()=>{
-                    let setHeight = that.$refs.settingBlock.getBoundingClientRect().height;
-                    if(newVal+setHeight > that.initPageHight){
-                        that.setBlockTop = that.initPageHight-setHeight;
-                        that.setRowTop   = setHeight-(that.initPageHight-newVal);
-                    }else{
-                        that.setBlockTop = newVal<0 ? 0: newVal;
-                        that.setRowTop   = 0
-                    }
-                }, 20)
-            })
-        }
+        settingPosit: {
+            handler(newVal){
+                this.modifySetPosition(newVal.top)
+            },
+            deep: true
+        },
     }
 };
 </script>
 
 <style lang="less" scoped>
-    .index{
-        // position: relative;
-        width: 100%;
-        overflow-y: auto;
-        .content{
-            height: 100%;
-            .showContent{
-                position: relative;
-                width: calc(~"100% - 250px");
-                background: #EFF1F6;
-                .pageContent{
-                    position: relative;
-                    margin: 40px 0 0 40px;
-                    padding: 5px;
-                    width: 375px;
-                    box-shadow:0px 2px 20px 0px rgba(0,0,0,0.1);
-                    background: white;
-                    .pageTopBlock{
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 65px;
-                        position: absolute;
-                        z-index: 20;
-                        .pageTopImg{
-                            width: 100%;
-                            height: 65px;
-                        }
-                        p{
-                            position: absolute;
-                            left: 0;
-                            bottom: 15px;
-                            width: 100%;
-                            text-align: center;
-                        }
-                    }
-                    .componentsList{
-                        margin-top: 65px;
-                        height: 667px;
-                        overflow-y: auto;
-                        &::-webkit-scrollbar {display:none}
-                    }
-                    .drag-item {
-                        // padding: 10px;
-                        // width: 355px;
-                        margin: auto;
-                        position: relative;
-                        background: #f1f1f1;
-                        border: 1px dashed #ccc;
-                        &:hover{
-                            border-color: #409EFF
-                        }
-                    }
-                    .modal{
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(0,0,0,.2);
-                        z-index: 3;
-                    }
-                }
-                .funBlock{
-                    position: absolute;
-                    right: -40px;
-                    top: 0;
-                    padding: 10px 5px;
-                    width: 30px;
-                    font-size: 20px;
-                    text-align: center;
-                    background: #f1f1f1;
-                    border-radius: 5px;
-                    box-shadow: 0 0 5px #a9a9a9;
-                    .icon{
-                        &+.icon{
-                            margin-top: 10px;
-                        }
-                        &:hover{
-                            color: #409EFF;
-                            cursor: pointer;
-                        }
-                    }
-                }
-            }
-            .btns{
-                padding-left: 10px;
-                margin-top: 10px;
-                height: calc(~"100% - 10px");
-                width: 240px;
-                text-align: left;
-                background: white;
-                /deep/ .el-button{
-                    margin: 10px;
-                }
-                .funBtnItem{
-                    display: inline-block;
-                    padding: 20px;
-                    width: calc(~"50% - 44px");
-                    text-align: center;
-                    cursor: pointer;
-                    .icon{
-                        font-size: 20px;
-                    }
-                }
-            }
-        }
-        .settingBlock{
-            position: relative;
-            position: absolute;
-            padding: 10px;
-            width: 400px;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 5px #a9a9a9;
-            z-index: 10;
-            .pseudoRow{
-                position: absolute;
-                content: "";
-                left: -10px;
-                border: 10px solid #fff;
-                transform: rotateZ(45deg);
-                box-shadow: -2px 2px 3px #a6a6a6;
-            }
-        }
-    }
+    @import './legoAdd.less';
 </style>

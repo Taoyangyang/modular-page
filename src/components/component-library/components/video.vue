@@ -7,18 +7,19 @@
             <source :src="setData.videoUrl" type="video/ogg">
             您的浏览器不支持 video 视频播放。
         </video>
-        <img v-else src="~assets/images/qrcode.png" width="100%" height="150">
+        <placeholderImg v-else imgType="video"></placeholderImg>
     </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import placeholderImg from "../pages/page_components/placeholderImg";
 
 export default {
-    components: {},
     data() {
         return {};
     },
+    components: {placeholderImg},
     props: {
         setData: {
             type: Object,

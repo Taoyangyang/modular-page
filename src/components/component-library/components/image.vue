@@ -1,13 +1,19 @@
+/*
+ * @Author: TaoYe 
+ * @Date: 2019-06-01 14:53:56 
+ * @Last Modified by:   TaoYe 
+ * @Last Modified time: 2019-06-20 14:53:56 
+ */
 <template>
     <div class="imageComponent">
-        <div class="imgBlock" ref="imageEle">
+        <div v-if="!IsEmptyObj(setData)" class="imgBlock" ref="imageEle">
             <el-image :src="setData.imageUrl || imageUrl" @load="imgLoaded" >
                 <div slot="placeholder" class="image-slot">
-                    加载中
-                    <span class="dot">...</span>
+                    加载中 <span class="dot">...</span>
                 </div>
             </el-image>
         </div>
+        <placeholderImg v-else></placeholderImg>
         <!-- 热区 -->
         <div class="eagleMapContainer" v-for="(item,index) in setData.hotSpotsPosition" :key="index" 
             v-dragMove="{setPosition: setPosition, outBoxSize: {w: imgSize.width, h:imgSize.height, index: index, cId: cId}}" ref="dragBox" 
@@ -24,17 +30,20 @@
 
 <script>
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
+import placeholderImg from "../pages/page_components/placeholderImg";
+
 export default {
-    components: {},
     data() {
         return {
-            imageUrl : 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-            imgSize  : {
+            hotSpotsBackup: [],
+            imageUrl      : '',
+            imgSize       : {
                 width : 0,
                 height: 0
             }
         };
     },
+    components: { placeholderImg },
     props: {
         setData : { type: Object | Array },
         cId     : { type: Number },
@@ -45,11 +54,24 @@ export default {
     },
     computed: {
         ...mapState({
-            componentsList: state => state.componentsList,
-        })
+            componentsList: state => state.lego.componentsList,
+        }),
+        isImgUpload: {
+            get(){
+                return this.$store.state.lego.isImgUpload
+            },
+            set(newVal){
+                this.$store.commit('updateData', {isImgUpload: newVal})
+            }
+        },
     },
     created() {
-        console.log(this.setData, "SETTING", this.noEditor)
+        let that = this;
+        // 解决编辑的时候不能拖动热区（img加载后触发 才会有width和height数据）
+        if(!that.IsEmptyObj(that.setData)){
+            that.hotSpotsBackup = that.setData.hotSpotsPosition;
+            that.setData.hotSpotsPosition = [];
+        }
     },
     mounted() {
         let that = this;
@@ -62,8 +84,11 @@ export default {
             let that =this;
             setTimeout(() => {
                 let sizeInfo = that.$refs.imageEle.getBoundingClientRect();
-                that.$set(that.imgSize, 'width', sizeInfo.width)
-                that.$set(that.imgSize, 'height', sizeInfo.height)
+                that.$set(that.imgSize, 'width', sizeInfo.width);
+                that.$set(that.imgSize, 'height', sizeInfo.height);
+
+                that.setData.hotSpotsPosition = that.isImgUpload ? [] : that.hotSpotsBackup;
+                that.isImgUpload = false;
             }, 100);
         },
         // 热区
@@ -95,6 +120,7 @@ export default {
     .imgBlock{
         text-align: center;
         .el-image{
+            display: block;
             width: 100%;
             .el-image__error{
                 line-height: 120px;

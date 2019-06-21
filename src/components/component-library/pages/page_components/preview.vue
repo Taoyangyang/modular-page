@@ -1,11 +1,17 @@
+/*
+ * @Author: TaoYe 
+ * @Date: 2019-06-02 14:52:20 
+ * @Last Modified by:   TaoYe 
+ * @Last Modified time: 2019-06-20 14:52:20 
+ */
 <template>
     <div class=''>
-        <div class="previewBlcok" :style="{width: previewWid+'px'}">
+        <div class="previewBlcok" :style="{width: previewWid+'px', background: pageSetData.bgColor}">
             <div class="pageTopBlock" ref="pageTop">
                 <img class="pageTopImg" src="~assets/images/lego/pageTop.jpg" width="100%" @load="imgLoaded">
                 <p class="title" :style="topTitleStyle">标题</p>
             </div>
-            <div class="preview" :style="{height: previewHei+'px', marginTop: pageTopHei+'px'}">
+            <div class="preview" :style="{height: previewHei+'px', marginTop: pageTopHei+'px', overflowY: showModal?'hidden':'auto'}">
                 <div class="previewContent">
                     <div v-for="item in componentsData" :key="item.id" class="drag-item">
                         <component :is="item.componentName" :setData="item.data" :cId="item.id" :noEditor="true"></component>
@@ -52,7 +58,8 @@ export default {
     },
     computed: {
         ...mapState({
-            showModal : state => state.showModal,
+            pageSetData : state => state.lego.pageSetData,
+            showModal   : state => state.lego.showModal,
         }),
         topTitleStyle(){
             let that = this;
@@ -151,17 +158,17 @@ export default {
             background: white;
             box-shadow: 0 0 5px #ccc;
             height: 667px;
-            overflow-y: auto;
             &::-webkit-scrollbar {display:none};
             .previewContent{
+                min-height: calc(~"100% - 5px");
                 position: relative;
                 .modal{
                     position: absolute;
-                    top: 0;
+                    top: -5px;
                     left: 0;
                     right: 0;
                     bottom: 0;
-                    background: rgba(0,0,0,.2);
+                    background: rgba(0,0,0,.6);
                     z-index: 3;
                 }
             }

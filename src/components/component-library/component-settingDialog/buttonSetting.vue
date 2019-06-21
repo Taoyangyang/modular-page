@@ -76,8 +76,8 @@ export default {
     },
     computed: {
         ...mapState({
-            componentsList: state => state.componentsList,
-            clickComIndex : state => state.clickComIndex,	
+            componentsList: state => state.lego.componentsList,
+            clickComIndex : state => state.lego.clickComIndex,	
         })
     },
     mounted(){

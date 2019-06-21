@@ -1,14 +1,24 @@
+/*
+ * @Author: TaoYe 
+ * @Date: 2019-06-01 14:54:15 
+ * @Last Modified by:   TaoYe 
+ * @Last Modified time: 2019-06-20 14:54:15 
+ */
 <template>
     <div>
         <div v-if="setData.carouselImages" class="carousel">
-            <div v-if="setData.leftSide" class="tags">
-                <el-tag v-for="(item,index) in setData.carouselImages" :key="item.id" type="warning" :class="['tabItem_'+index]"
-                :ref="[index==tabIndex?'tabItem_active':'tabItem']" :effect="index==tabIndex ? 'dark':'plain'">
+            <div v-if="setData.showTitle" :class="['tags', 'tags_'+componentId, 'flex_start_v']" :style="{background: pageSetData.bgColor}">
+                <span v-for="(item,index) in setData.carouselImages" :key="item.id" :class="['tabItem_'+index]" :style="tabs_3_style(index)" 
+                @click.stop="switchCarousel(index)" :ref="[index==tabIndex?'tabItem_active':'tabItem']" >
                     {{item.itemTitle}}
-                </el-tag>
+                </span>
+                <!-- <el-tag v-for="(item,index) in setData.carouselImages" :key="item.id" :class="['tabItem_'+index]" :hit="false"
+                :ref="[index==tabIndex?'tabItem_active':'tabItem']" :color="index==tabIndex ? setData.activeBgColor:setData.defaultBgColor">
+                    {{item.itemTitle}}
+                </el-tag> -->
             </div>
-            <el-carousel :height="(setData.carouselHeight||'150')+'px'" :autoplay="setData.autoplay" :interval="setData.interval" @change="carouselChange" 
-            trigger="click" :style="{padding: setData.leftSide ? '5px 10px':'0'}" >
+            <el-carousel :height="(setData.carouselHeight||'150')+'px'" :autoplay="setData.autoplay" :interval="setData.interval" 
+            @change="carouselChange" trigger="click" :style="{margin: setData.leftSide ? '16px':'0'}" :ref="'carousel_'+componentId">
                 <el-carousel-item v-for="item in setData.carouselImages" :key="item.id">
                     <el-image :src="item.imgUrl" fit="contain" style="width:100%; height:100%"></el-image>
                 </el-carousel-item>
@@ -22,29 +32,32 @@
                 <div class="swiper-pagination" slot="pagination"></div>
             </swiper> -->
         </div>
-        <img v-else src="~assets/images/qrcode.png" width="100%" height="150">
+        <placeholderImg v-else :imgType="config&&config.hasTitle ? 'carouselTabs':'carousel'"></placeholderImg>
     </div>
 </template>
 
 <script>
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
+import placeholderImg from "../pages/page_components/placeholderImg";
+
 export default {
-    components: {},
     data() {
         return {
-            tabIndex : 0,
+            tabIndex     : 0,
+            componentId  : '',          //当前组件页面的id
+            setActiveItem: '0',
             // updatedToggle: false,
             // swiperOption : {
-            //     slidesPerView : 'auto',
+                //     slidesPerView : 'auto',
             //     centeredSlides: true,
             //     spaceBetween  : 10,
             //     loop      : true,
             //     autoplay  :{
-            //         disableOnInteraction: false,
+                //         disableOnInteraction: false,
             //         delay: 3000
             //     },
             //     pagination: {
-            //         el: '.swiper-pagination',
+                //         el: '.swiper-pagination',
             //         clickable: true
             //     },
             //     observer: true,
@@ -52,21 +65,46 @@ export default {
             // }
         };
     },
+    components: { placeholderImg },
     props: {
         setData: { type: Object | Array },
+        config : { type: Object },
     },
     computed: {
+        ...mapState({
+            pageSetData: state => state.lego.pageSetData,
+        }),
         // swiper() {
         //     return this.$refs.mySwiper.swiper
-        // }
+        // },
+        tabs_3_style() {
+            return function(index) {
+                let that = this; 
+                let tabsStyle = {
+                    background: index==that.tabIndex ? that.setData.activeBgColor : that.setData.defaultBgColor, 
+                    color     : index==that.tabIndex ? that.setData.activeTextColor : that.setData.defaultTextColor, 
+                    borderRadius: 32 * that.setData.borderRadius+'px'
+                };
+                if(that.setData.carouselImages.length<=3){
+                    tabsStyle.margin = '0 10px';
+                    tabsStyle.marginLeft = index==0 ? '5px':'10px';
+                    tabsStyle.width = '33.33%';
+                }
+
+                return tabsStyle
+            }
+        },
     },
     mounted() {
         let that = this;
+        that.componentId = that.getUUID();
         // that.updatedSwiper()
     },
     methods: {
         carouselChange(index){
             let that = this;
+            if(!that.setData.showTitle) return false;
+            
             that.tabIndex = index;
             that.$nextTick(()=>{
                 // let activeEle = that.$refs['tabItem_active'];
@@ -74,11 +112,14 @@ export default {
                 //     behavior: 'smooth',     //平滑滚动，其他还有 instant
                 //     block   : 'center'      //元素到页面顶部，其他还有 start, end, center});
                 // })
-                let eleBox     = document.querySelector(".tags");
-                let currentEle = document.querySelector(".tabItem_"+that.tabIndex)
+                let eleBox     = document.querySelector(".tags_"+that.componentId);
+                let currentEle = document.querySelector(`.tags_${that.componentId} .tabItem_${that.tabIndex}`)
                 currentEle && (eleBox.scrollLeft = currentEle.offsetLeft-currentEle.offsetWidth);
             })
         },
+        switchCarousel(index){
+            this.$refs['carousel_'+this.componentId].setActiveItem(index)
+        }
         // updatedSwiper(){
         //     let that = this;
         //     that.$nextTick(()=>{
@@ -100,14 +141,18 @@ export default {
     }
 };
 </script>
+<style lang="less">
+    .carousel .tags .el-tag{color: white;}
+</style>
 <style lang='less' scoped>
     .carousel {
         .tags{
-            padding-top: 5px;
-            margin: 0 10px;
+            padding: 5px;
+            // margin: 0 5px;
             height: 32px;
-            width: calc(~"100% - 20px");
+            width: calc(~"100% - 10px");
             white-space: nowrap;
+            color: white;
             overflow-x: auto;
             &::-webkit-scrollbar { 
                 width: 0; 
@@ -116,14 +161,18 @@ export default {
             .el-tag+.el-tag{
                 margin-left: 6px
             }
+            span{
+                display: inline-block;
+                padding: 0 10px;
+                height: 32px;
+                line-height: 32px;
+                font-size: 14px;
+                &+span{
+                    margin-left: 6px
+                }
+            }
         }
         /deep/.el-carousel{
-            .el-carousel__item:nth-child(2n) {
-                background-color: #99a9bf;
-            }
-            .el-carousel__item:nth-child(2n + 1) {
-                background-color: #d3dce6;
-            }
             .el-carousel__indicators {
                 li button{
                     width: 4px;

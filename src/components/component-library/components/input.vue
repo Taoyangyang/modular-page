@@ -24,7 +24,7 @@ export default {
     computed: {
         inputVal: {
             get(){
-                return this.$store.state.inputVal
+                return this.$store.state.lego.inputVal
             },
             set(newVal){
                 this.$store.commit('updateData', {inputVal: newVal})

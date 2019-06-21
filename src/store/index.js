@@ -10,6 +10,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         // 页面
+        pageSetData     : {},
+        pageSetConfig   : {},
         componentsList  : [],
         clickComIndex   : null,           //当前点击的组件下标
         // input组件
@@ -20,6 +22,8 @@ export default new Vuex.Store({
         },
         // 弹窗遮层
         showModal    : false,
+        // 是否是图片上传触发
+        isImgUpload  : false,
     },
     mutations: {
         updateData(state, payload) {

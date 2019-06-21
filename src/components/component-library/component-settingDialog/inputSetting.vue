@@ -38,7 +38,7 @@ export default {
     },
     computed: {
         ...mapState({
-            inputFormDatas : state => state.inputFormDatas,				
+            inputFormDatas : state => state.lego.inputFormDatas,				
         }),
         getData(){
             let that = this;

@@ -1,46 +1,57 @@
+/*
+ * @Author: TaoYe 
+ * @Date: 2019-06-01 14:53:42 
+ * @Last Modified by: TaoYe
+ * @Last Modified time: 2019-06-21 15:26:46
+ */
 <template>
     <div class='imageSetting'>
-        <p class="typeName">{{config.singleImg ? '单图模式':'热区模式'}}</p>
-        <el-button v-if="!config.singleImg" type="primary" icon="el-icon-circle-plus" size="medium" @click="addHotSpots">添加热区</el-button>
-        <div class="showItem flex_start_v">
-            <!-- <img :src="showData.imageUrl || imageUrl" width="40" height="40" @click="chooseImg"> -->
-            <el-oss-upload class="avatar-uploader" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
-                <img v-if="imageUrl" :src="imageUrl+'?x-oss-process=image/resize,m_fixed,h_178,w_178'" width="60" height="60" class="avatar">
-                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                <div slot="view"></div>
-            </el-oss-upload>
-            <div class="imgLinkUrl">
-                <p>&nbsp;&nbsp;跳转链接：</p>
-                <input type="text" :disabled="!config.singleImg" v-model="imageLinkUrl" placeholder="请输入链接">
+        <settingSlot @confirm="confirm" @cancel="cancel">
+            <p slot="dialogTitle" class="typeName">{{config.singleImg ? '单图':'单图热区'}}</p>
+            <div slot="hint">
+                <p>图片<span style="color:red">*</span></p>
+                <p>{{`建议图片宽度750，高度≤${config.singleImg ? '950':'2000'}，支持格式jpg、png`}}</p>
             </div>
-        </div>
-        <div class="dataBox" style="min-height:20px">
-            <div class="dataItem" v-for="(item,index) in showData.hotSpotsPosition" :key="index">
-                <p><b>热区{{index}}</b>: 宽-{{item.boxWidth}} 高-{{item.boxHeight}} 左上点位置{{item.boxTLPoint.x}}，{{item.boxTLPoint.y}}</p>
-                <input type="text" v-model="item.linkUrl" placeholder="请输入热区跳转连接">
-                <i class="delIcon el-icon-circle-close" @click="delHotSpot(index)"></i>
+            <div slot="mainContent">
+                <div class="showItem flex_start_v">
+                    <!-- <img :src="showData.imageUrl || imageUrl" width="40" height="40" @click="chooseImg"> -->
+                    <el-oss-upload class="avatar-uploader" :show-file-list="false" :on-success="floorPlanSuccess" :before-upload="uploadPicBefore">
+                        <img v-if="imageUrl" :src="imageUrl+'?x-oss-process=image/resize,m_fixed,h_178,w_178'" width="60" height="60" class="avatar">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        <div slot="view"></div>
+                    </el-oss-upload>
+                    <div class="imgLinkUrl">
+                        <el-input size="mini" type="text" :disabled="!config.singleImg" v-model="imageLinkUrl" placeholder="请输入链接"> </el-input>
+                    </div>
+                </div>
+                <el-button v-if="!config.singleImg" class="addBtn" :disabled="!imageUrl" type="primary" icon="el-icon-circle-plus" plain size="medium" @click="addHotSpots">添加热区</el-button>
+                <div class="dataBox" style="min-height:20px">
+                    <div class="dataItem" v-for="(item,index) in showData.hotSpotsPosition" :key="index">
+                        <p>热区{{index}}</p>
+                        <div class="inputBlock flex_between_v">
+                            <el-input type="text" v-model="item.linkUrl" placeholder="请输入热区跳转连接" size="mini"></el-input>
+                            <i class="delIcon el-icon-delete" @click="delHotSpot(index)"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <br />
-        <div slot="footer" class="dialog-footer">
-            <el-button @click="cancel">关 闭</el-button>
-            <el-button type="primary" @click="confirm">确 定</el-button>
-            <!-- <el-button type="danger" @click="delet">删除</el-button> -->
-        </div>
+        </settingSlot>
     </div>
 </template>
 
 <script>
 import { mapState , mapGetters , mapMutations , mapActions } from 'vuex';
+import settingSlot from '../component-settingDialog/settingSlot'
+
 export default {
-    components: {},
     data() {
         return {
             hotSpotsDatas: [],
-            imageUrl     : 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
+            imageUrl     : '',
             imageLinkUrl : ''
         };
     },
+    components: { settingSlot },
     props: {
         showData :{ 
             type: Object | Array 
@@ -52,14 +63,23 @@ export default {
     },
     computed: {
         ...mapState({
-            componentsList: state => state.componentsList,
-            clickComIndex : state => state.clickComIndex,	
-        })
+            componentsList: state => state.lego.componentsList,
+            clickComIndex : state => state.lego.clickComIndex,	
+            isImgUpload   : state => state.lego.isImgUpload,	
+        }),
+        // isImgUpload: {
+        //     get(){
+        //         return this.$store.state.lego.isImgUpload
+        //     },
+        //     set(newVal){
+        //         this.$store.commit('updateData', {isImgUpload: newVal})
+        //     }
+        // },
     },
     created() {
         let that = this;
-        that.imageUrl = that.showData.imageUrl ? that.showData.imageUrl : that.imageUrl;
-        console.log(this.showData, "SHOWDATA")
+        that.imageUrl     = that.showData.imageUrl ? that.showData.imageUrl : that.imageUrl;
+        that.imageLinkUrl = that.showData.imageLinkUrl ? that.showData.imageLinkUrl : that.imageLinkUrl;
     },
     mounted() {
         let that = this;
@@ -104,24 +124,36 @@ export default {
             }).catch(()=>{})
         },
         // 选择图片
-        // chooseImg(){
-        //     let that = this;
-        //     console.log("选择图片")
-        //     that.showData.imageUrl = 'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'
-        // },
         floorPlanSuccess(file) {
             let that = this;
             that.imageUrl = file.fullPath
             
-            console.log(file.fullPath, that.imageUrl)
+            // 清空热区数据；
+            that.$set(that.showData, 'hotSpotsPosition', that.isImgUpload && []);
+            that.$set(that.showData, 'imageUrl', that.imageUrl);
+
+            that.$set(that.componentsList[that.clickComIndex], 'data', {
+                hotSpotsPosition: [],
+                imageUrl        : that.imageUrl,
+                imageLinkUrl    : that.imageLinkUrl
+            })
+            that.updateData({ 
+                componentsList: that.componentsList,
+                isImgUpload   : true 
+            });
         },
         uploadPicBefore(file) {
+            let that = this;
+            const isLt2M = file.size / 1024 / 1024 < 2;
             if (file.type !== 'image/jpeg' && file.type !== 'image/png' && file.type !== 'image/gif') {
-                this.$notify({
+                that.$notify({
                     duration: 1500,
                     message: '请上传图片格式文件',
                     type: 'error',
                 });
+                return false;
+            }else if (!isLt2M) {
+                that.$message.error('上传图片大小不能超过 2MB!');
                 return false;
             }
         },
@@ -146,7 +178,7 @@ export default {
     },
     watch: {
         clickComIndex(newVal, oldVal){
-            console.log(newVal, this.componentsList[this.clickComIndex], "clickIndex")
+            //console.log(newVal, this.componentsList[this.clickComIndex], "clickIndex")
         },
         showData: {
             handler(newVal, oldVal) {
@@ -154,12 +186,19 @@ export default {
     　　　　},
     　　　　deep: true
         },
+        'hotSpotsDatas.length'(newVal){
+            this.$emit('setPosition')
+        },
     }
 }
 </script>
+
+<style lang="less">
+    .dataBox .inputBlock .el-input__inner{border: none;}
+    
+</style>
 <style lang='less' scoped>
     .imageSetting{
-        text-align: center;
         .typeName{
             margin: 10px 0;
             color: #808080;
@@ -168,13 +207,13 @@ export default {
         .showItem{
             position: relative;
             margin-top: 10px;
-            padding: 5px 2px;
+            padding: 10px;
             padding-left: 10px;
             text-align: left;
             border-radius: 3px;
-            border: 1px solid #ccc;
             font-size: 14px;
             color: #808080;
+            background: #F5F7FA;
             .avatar-uploader-icon{
                 width: 58px;
                 height: 58px;
@@ -197,31 +236,44 @@ export default {
                 border-radius: 3px;
             }
         }
+        .addBtn{
+            margin: 10px 0;
+            width: 100%;
+        }
         .dataBox{
-            max-height: 400px;
-            overflow: auto;
             font-size: 14px;
+            &::-webkit-scrollbar {/*滚动条整体样式*/
+                width: 4px;     /*高宽分别对应横竖滚动条的尺寸*/
+                height: 4px;
+            }
+            &::-webkit-scrollbar-thumb {
+                border-radius: 2px;
+                background-color: rgba(194,194,194,1);
+            }
             .dataItem{
-                position: relative;
-                margin-top: 5px;
                 padding: 5px 2px;
                 text-align: left;
                 border-radius: 3px;
-                border: 1px solid #ccc;
-                p{ margin: 4px 0; }
-                input{
-                    width: calc(~"100% - 14px");
-                    height: 22px;
-                    border: 1px solid #f1f1f1;
-                    padding: 0 5px;
-                    border-radius: 3px;
+                p{ 
+                    margin: 4px 0; 
+                    font-size: 12px;
+                    color: #909399;
                 }
-                .delIcon{
-                    position: absolute;
-                    right: 2px;
-                    top: 5px;
-                    cursor: pointer;
-                    color: #F56C6C;
+                .inputBlock{
+                    padding-right: 10px;
+                    border: 1px solid #DCDFE6;
+                    border-radius: 4px;
+                    input{
+                        width: calc(~"100% - 14px");
+                        height: 22px;
+                        border: 1px solid #f1f1f1;
+                        padding: 0 5px;
+                        border-radius: 3px;
+                    }
+                    .delIcon{
+                        font-size: 16px;
+                        cursor: pointer;
+                    }
                 }
             }
         }
