@@ -317,11 +317,21 @@ export default {
             if(type=='up'){
                 if(that.clickComIndex==0) return false;
                 that.dataInterchange(that.componentsList, that.clickComIndex-1, that.clickComIndex);
+				that.updateData({ clickComIndex: that.clickComIndex-1})
             }else{
                 if(that.clickComIndex==that.componentsList.length-1) return false;
                 that.dataInterchange(that.componentsList, that.clickComIndex+1, that.clickComIndex);
+				that.updateData({ clickComIndex: that.clickComIndex+1})
             }
             that.showSetBlock = false;
+			
+			// 设置跟随；
+            that.$nextTick(()=>{
+                let activeComponentData = that.componentsList[that.clickComIndex];
+                let activeComponenttEle = that.$refs['drag-item-'+activeComponentData.id][0];
+                activeComponenttEle.scrollIntoView({block: 'center'});
+                that.showSetting(that.clickComIndex, activeComponentData.id, activeComponentData.componentName);
+            })
         },
         // 提交页面
         submitData(){
