@@ -3,6 +3,8 @@
 
 ![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF.gif)
 
+![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF1.gif)
+
 > A Vue.js project
 
 ## Build Setup
