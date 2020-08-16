@@ -5,6 +5,13 @@
 
 ![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF1.gif)
 
+![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF2.gif)
+
+![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF3.gif)
+
+![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF4.gif)
+
+![Alt text](https://github.com/Taoyangyang/modular-page/blob/master/effect_picture/GIF5.gif)
 > A Vue.js project
 
 ## Build Setup
